@@ -2,6 +2,7 @@
 #define GYROSCOPE_H
 
 #include <sensor.h>
+#include <si_types.h>
 
 namespace Sensor{
 
@@ -10,8 +11,6 @@ struct RawGyroscopeData{
     int nR_Data;
     int nY_Data;
 };
-
-typedef float DPS;
 
 class Gyroscope : public SensorBase<DPS, RawGyroscopeData> {
 public:

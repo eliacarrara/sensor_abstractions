@@ -135,8 +135,8 @@ class StAccel_dsh : public Sensor::Thermometer, public Sensor::Accelerometer, pu
         bool ReadSensorDataOnce(Sensor::RawThermometerData & OutData);
         bool ReadSensorDataOnce(Sensor::RawAcceleromterData & OutData);
 
-        Sensor::Celcius ConvertToSIUnit(Sensor::RawThermometerData Data);
-        Sensor::GForge ConvertToSIUnit(Sensor::RawAcceleromterData Data);
+        Celcius ConvertToSIUnit(Sensor::RawThermometerData Data);
+        GForge ConvertToSIUnit(Sensor::RawAcceleromterData Data);
 };
 
 #endif

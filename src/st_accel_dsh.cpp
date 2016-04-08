@@ -572,11 +572,11 @@ bool StAccel_dsh::ReadSensorDataOnce(Sensor::RawAcceleromterData & OutData)
     return false;
 }
 
-Sensor::Celcius StAccel_dsh::ConvertToSIUnit(Sensor::RawThermometerData Data)
+Celcius StAccel_dsh::ConvertToSIUnit(Sensor::RawThermometerData Data)
 {
     return 0.0;
 }
-Sensor::GForge StAccel_dsh::ConvertToSIUnit(Sensor::RawAcceleromterData Data)
+GForge StAccel_dsh::ConvertToSIUnit(Sensor::RawAcceleromterData Data)
 {
     return 0.0;
 }

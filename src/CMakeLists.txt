@@ -29,4 +29,5 @@ add_executable(spibus   launch.cpp
                         gyroscope.h
                         magnetometer.h
                         st_accel_dsh.h st_accel_dsh.cpp
-                        error.h)
+                        error.h
+                        si_types.h)

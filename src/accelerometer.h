@@ -2,6 +2,7 @@
 #define ACCELEROMETER_H
 
 #include <sensor.h>
+#include <si_types.h>
 
 namespace Sensor{
 
@@ -10,8 +11,6 @@ struct RawAcceleromterData{
     int nY_Data;
     int nZ_Data;
 };
-
-typedef float GForge;
 
 class Accelerometer : public SensorBase<GForge, RawAcceleromterData> {
 public:

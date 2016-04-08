@@ -2,13 +2,13 @@
 #define THERMOMETER_H
 
 #include <sensor.h>
+#include <si_types.h>
 
 namespace Sensor{
 
 struct RawThermometerData{
     int nTemp;
 };
-typedef float Celcius;
 
 class Thermometer : public SensorBase<Celcius, RawThermometerData> {
 public:

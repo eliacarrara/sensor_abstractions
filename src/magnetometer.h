@@ -2,6 +2,7 @@
 #define MAGNETOMETER_H
 
 #include <sensor.h>
+#include <si_types.h>
 
 namespace Sensor{
 
@@ -10,8 +11,6 @@ struct RawMagnetometerData{
         int nR_Data;
         int nY_Data;
 };
-
-typedef float Gauss;
 
 class Magnetometer : public SensorBase<Gauss, RawMagnetometerData> {
     public:
