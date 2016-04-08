@@ -1,3 +1,8 @@
+/// \file   bus.h
+/// \author Elia Carrara
+/// \date   April, 2016
+/// \brief  Contains the definition of the bus base class.
+
 #ifndef BUS_H
 #define BUS_H
 

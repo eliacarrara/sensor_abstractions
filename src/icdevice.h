@@ -1,3 +1,11 @@
+/// \file   icdevice.h
+/// \author Elia Carrara
+/// \date   April, 2016
+/// \brief  Contains the definition of the IC device class.
+/// \details This is a representation of a IC device. I implemented this class
+/// with readable and/or writable registers. The registers are represented
+/// by the sRegister struct.
+
 #ifndef ICDEVICE_H
 #define ICDEVICE_H
 

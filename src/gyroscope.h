@@ -1,3 +1,8 @@
+/// \file   gyroscope.h
+/// \author Elia Carrara
+/// \date   April, 2016
+/// \brief  Contains the definition of the gyroscope-sensor base class.
+
 #ifndef GYROSCOPE_H
 #define GYROSCOPE_H
 

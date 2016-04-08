@@ -1,3 +1,11 @@
+/// \file   spibus.h
+/// \author Elia Carrara
+/// \date   April, 2016
+/// \brief  Contains the definition of the spi-bus class.
+/// \details This class abstracts almost all functionallities of the
+/// spi-bus. It makes direct calls to the linux spi driver. Checkout
+/// <linux/spi/spidev.h> for further information.
+
 #ifndef SPIBUS_H
 #define SPIBUS_H
 

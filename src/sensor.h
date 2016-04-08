@@ -1,11 +1,10 @@
-#ifndef SENSOR_H
-#define SENSOR_H
-
 /// \file   sensor.h
 /// \author Elia Carrara
 /// \date   April, 2016
 /// \brief  Contains the definition of the sensor base class.
 
+#ifndef SENSOR_H
+#define SENSOR_H
 
 /// \brief This namespace contains all sensor related items.
 namespace Sensor{

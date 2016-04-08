@@ -1,6 +1,6 @@
 # Configurations for Cmake
 cmake_minimum_required (VERSION 3.2.2)
-project (spibus)
+project (skywalker_prototype)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 ${CMAKE_CXX_FLAGS_DEBUG} -Wall")
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_INCLUDE_PATH ${CMAKE_INCLUDE_PATH})
@@ -19,7 +19,8 @@ SET(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
 
 
 # Building the binaries
-add_executable(spibus   launch.cpp
+add_executable(skywalker_prototype
+                        launch.cpp
                         spibus.h spibus.cpp
                         bus.h
                         icdevice.h icdevice.cpp

@@ -1,3 +1,8 @@
+/// \file   magnetometer.h
+/// \author Elia Carrara
+/// \date   April, 2016
+/// \brief  Contains the definition of the magnetometer-sensor base class.
+
 #ifndef MAGNETOMETER_H
 #define MAGNETOMETER_H
 

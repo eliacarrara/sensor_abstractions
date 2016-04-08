@@ -1,3 +1,8 @@
+/// \file   accelerometer.h
+/// \author Elia Carrara
+/// \date   April, 2016
+/// \brief  Contains the definition of the accelerometer-sensor base class.
+
 #ifndef ACCELEROMETER_H
 #define ACCELEROMETER_H
 

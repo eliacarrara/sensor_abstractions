@@ -1,6 +1,3 @@
-#ifndef SI_TYPES_H
-#define SI_TYPES_H
-
 /// \file   si_types.h
 /// \author Elia Carrara
 /// \date   April, 2016
@@ -8,6 +5,9 @@
 /// \details These representations shoud make it easier to work with.
 /// Rather than getting a "float" from a function, it is way
 /// more simpler to know what for a si unit you are dealing with.
+
+#ifndef SI_TYPES_H
+#define SI_TYPES_H
 
 /// \brief Represensation for a Celcius unit.
 typedef float Celcius;
