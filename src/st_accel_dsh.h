@@ -23,8 +23,8 @@ class StAccel_dsh : public Sensor::Thermometer, public Sensor::Accelerometer, pu
         m_RegOutX_L, m_RegOutX_H, m_RegOutY_L, m_RegOutY_H, m_RegOutZ_L, m_RegOutZ_H, m_RegFifoCtrl,
         m_RegFifoSrc;
 
-        char * m_tx_buf = 0;
-        char * m_rx_buf = 0;
+        char * m_pcTxbuf = 0;
+        char * m_pcRxBuf = 0;
         unsigned int m_unBuffSize;
         bool m_bReadInc;
 

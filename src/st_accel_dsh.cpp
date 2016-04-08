@@ -80,23 +80,23 @@ unsigned int StAccel_dsh::BufferSize()
 }
 void StAccel_dsh::SetupBuffers(unsigned int BufLen)
 {
-    m_rx_buf = (char*)calloc(BufLen, sizeof(char));
-    m_tx_buf = (char*)calloc(BufLen, sizeof(char));
+    m_pcRxBuf = (char*)calloc(BufLen, sizeof(char));
+    m_pcTxbuf = (char*)calloc(BufLen, sizeof(char));
     BufferSize(BufLen);
 }
 void StAccel_dsh::PopulateBuffer(char accessor)
 {
-    m_tx_buf[0] = accessor;
+    m_pcTxbuf[0] = accessor;
 }
 void StAccel_dsh::CleanBuffers()
 {
     BufferSize(0);
-    free(m_rx_buf);
-    free(m_tx_buf);
+    free(m_pcRxBuf);
+    free(m_pcTxbuf);
 }
 bool StAccel_dsh::BombsAway()
 {
-    return ((SpiBus*)m_clsBus)->Transact(m_rx_buf,m_tx_buf, m_unBuffSize);
+    return ((SpiBus*)m_clsBus)->Transact(m_pcRxBuf,m_pcTxbuf, m_unBuffSize);
 }
 
 eReturnCode StAccel_dsh::MultiRead(RegPtr psReg, unsigned int BytesToRead, char * pcRxData)
@@ -125,7 +125,7 @@ eReturnCode StAccel_dsh::MultiRead(RegPtr psReg, unsigned int BytesToRead, char 
         // reads data from the buffer
         pcRxData = (char*)malloc(BytesToRead);
         for (unsigned int i = 1; i < m_unBuffSize; ++i)
-            pcRxData[i-1] = m_rx_buf[i];
+            pcRxData[i-1] = m_pcRxBuf[i];
         return OK;
     }else
         return TerribleError;
@@ -144,7 +144,7 @@ eReturnCode StAccel_dsh::MultiWrite(RegPtr psReg, unsigned int BytesToRead, char
     PopulateBuffer(psReg->cAddress);
 
     for (unsigned int i = 0; i < BytesToRead; ++i) {
-        m_tx_buf[i+1] = pcTxData[i];
+        m_pcTxbuf[i+1] = pcTxData[i];
     }
 
     // Checks access rights and if locked bits would get written on
@@ -176,7 +176,7 @@ eReturnCode StAccel_dsh::Read(RegPtr psReg, char & cValue)
     PopulateBuffer(psReg->cAddress);
 
     if (BombsAway()){
-        cValue = m_rx_buf[1];
+        cValue = m_pcRxBuf[1];
         return OK;
     }else
         return TerribleError;
@@ -193,7 +193,7 @@ eReturnCode StAccel_dsh::Write(RegPtr psReg, char & cValue)
     SetupBuffers(ACC_SPI_DEFAULT_BUFF_LEN);
 
     PopulateBuffer(psReg->cAddress);
-    m_tx_buf[1] = cValue;
+    m_pcTxbuf[1] = cValue;
 
     if (BombsAway())
         return OK;
