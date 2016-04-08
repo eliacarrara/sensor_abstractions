@@ -26,14 +26,7 @@ bool ICDevice::CheckRegisterAccess(RegPtr psReg, char ActionCode)
 
 bool ICDevice::CheckLockedBits(RegPtr psReg, char & tx_out)
 {
-#pragma message "To be tested"
-    char tmp = (psReg->cDefault & psReg->cLockedBits) | (~psReg->cLockedBits & tx_out);
-    if(tmp != tx_out){
-        tx_out = 0;
-        return false;
-    }
-
-    return true;
+    return (((psReg->cDefault & psReg->cLockedBits) | (~psReg->cLockedBits & tx_out)) == tx_out);
 }
 
 ICDevice::ICDevice()
