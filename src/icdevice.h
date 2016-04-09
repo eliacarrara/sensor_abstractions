@@ -37,7 +37,7 @@ enum eReturnCode{
     NoAccess            = 1,
     WritingLockedBits   = 2,
     InvalidRegister     = 4,
-    NothingToWrite      = 8,
+    BufferError      = 8,
     MultiAccessDisabled = 16,
     TerribleError       = 32,
 };
