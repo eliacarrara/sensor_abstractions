@@ -16,6 +16,6 @@ typedef float Gauss;
 /// \brief Represensation for a degree per second unit.
 typedef float DPS;
 /// \brief Represensation for a g (force) unit.
-typedef float GForge;
+typedef float GForce;
 
 #endif
