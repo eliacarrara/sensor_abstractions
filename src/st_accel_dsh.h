@@ -16,31 +16,6 @@
 #define ACC_SPI_DEFAULT_BUFF_LEN 2
 
 class StAccel_dsh : public Sensor::Thermometer, public Sensor::Accelerometer, public ICDevice {
-        // Registers
-        RegPtr m_RegInfo1, m_RegInfo2, m_RegWhoAmI, m_RegCtrlReg3, m_RegCtrlReg4, m_RegCtrlReg5, m_RegCtrlReg6,
-        m_RegStatus, m_RegOutT, m_RegOffX, m_RegOffY, m_RegOffZ, m_RegCsX, m_RegCsY, m_RegCsZ,
-        m_RegLcL, m_RegLcH, m_RegStat, m_RegVfc1, m_RegVfc2, m_RegVfc3, m_RegVfc4, m_RegThrs3,
-        m_RegOutX_L, m_RegOutX_H, m_RegOutY_L, m_RegOutY_H, m_RegOutZ_L, m_RegOutZ_H, m_RegFifoCtrl,
-        m_RegFifoSrc;
-
-        char * m_pcTxBuf = 0;
-        char * m_pcRxBuf = 0;
-        unsigned int m_unBuffSize;
-        bool m_bReadInc;
-
-        eReturnCode MultiRead(RegPtr psReg, unsigned int BytesToRead, char * pcRxData);
-        eReturnCode MultiWrite(RegPtr psReg, unsigned int BytesToRead, char * pcTxData);
-        eReturnCode Read(RegPtr psReg, char & cValue);
-        eReturnCode Write(RegPtr psReg, char & cValue);
-
-        inline void _BufferSize(unsigned int unSize);
-        inline unsigned int _BufferSize();
-
-        inline void _SetupBuffers(unsigned int BufLen);
-        inline void _PopulateBuffer(char accessor);
-        inline void _PopulateBuffer(char accessor, char * param);
-        inline void _CleanBuffers();
-        inline bool _BombsAway();
     public:
         StAccel_dsh();
         ~StAccel_dsh();
@@ -77,9 +52,6 @@ class StAccel_dsh : public Sensor::Thermometer, public Sensor::Accelerometer, pu
         bool GetRange(MeasureRange & Value);
         bool SetRange(MeasureRange Value);
 
-        bool IsFifoEnabled(bool & Value);
-        bool UseFifo(bool Value);
-
         bool DataOverrunXYZ(bool & Value);
         bool DataOverrunX(bool & Value);
         bool DataOverrunY(bool & Value);
@@ -98,11 +70,16 @@ class StAccel_dsh : public Sensor::Thermometer, public Sensor::Accelerometer, pu
         bool UseAxisY(bool Value);
         bool UseAxisZ(bool Value);
 
-        bool IsBSU(bool & Value);
-        bool UseBSU(bool Value);
+        bool IsBDU(bool & Value);
+        bool UseBDU(bool Value);
 
         bool IsReadInc(bool & Value);
         bool UseReadInc(bool Value);
+
+        bool IsFifoEnabled(bool & Value);
+        bool UseFifo(bool Value);
+        bool IsFifoEmpty(bool & Value);
+        bool IsFifoOverrun(bool & Value);
 
         //Get/Set Int Sig DRDY
         //Get/Set Int Sig Polarity
@@ -112,7 +89,7 @@ class StAccel_dsh : public Sensor::Thermometer, public Sensor::Accelerometer, pu
         //Get/Set Vector Filter Enabled/Disabled
         //Get/Set Anti aliasing filder bandwith
         //Get/Set Selftest
-        //Get/Set SPI 3Wire Mode
+        //Get/Set SPI 3 Wire Mode
         //Get/Set fifo watermark level
         //Get/Set fifo empty int
         //Get/Set fifo watermark int
@@ -124,19 +101,44 @@ class StAccel_dsh : public Sensor::Thermometer, public Sensor::Accelerometer, pu
         //stat reg?
         //vfc ?
         //threshold ?
-        //Get out data
         //Get/Set Fifo mode
         //Get/Set Watermark pointer?
         //Get Watermark status
-        //Get is fifo overrun
-        //Get is fifo empty
         //fifo stored data level?
 
         bool ReadSensorDataOnce(Sensor::RawThermometerData & OutData);
         bool ReadSensorDataOnce(Sensor::RawAcceleromterData & OutData);
 
         Celcius ConvertToSIUnit(Sensor::RawThermometerData Data);
-        GForge ConvertToSIUnit(Sensor::RawAcceleromterData Data);
+        GForce * ConvertToSIUnit(Sensor::RawAcceleromterData Data);
+private:
+        // Registers
+        RegPtr m_RegInfo1, m_RegInfo2, m_RegWhoAmI, m_RegCtrlReg3, m_RegCtrlReg4, m_RegCtrlReg5, m_RegCtrlReg6,
+        m_RegStatus, m_RegOutT, m_RegOffX, m_RegOffY, m_RegOffZ, m_RegCsX, m_RegCsY, m_RegCsZ,
+        m_RegLcL, m_RegLcH, m_RegStat, m_RegVfc1, m_RegVfc2, m_RegVfc3, m_RegVfc4, m_RegThrs3,
+        m_RegOutX_L, m_RegOutX_H, m_RegOutY_L, m_RegOutY_H, m_RegOutZ_L, m_RegOutZ_H, m_RegFifoCtrl,
+        m_RegFifoSrc;
+
+        char * m_pcTxBuf = 0;
+        char * m_pcRxBuf = 0;
+        unsigned int m_unBuffSize;
+        bool m_bReadInc;
+        MeasureRange m_eRange;
+
+        eReturnCode MultiRead(RegPtr psReg, unsigned int BytesToRead, char * pcRxData);
+        eReturnCode MultiWrite(RegPtr psReg, unsigned int BytesToRead, char * pcTxData);
+        eReturnCode Read(RegPtr psReg, char & cValue);
+        eReturnCode Write(RegPtr psReg, char & cValue);
+
+        inline void _BufferSize(unsigned int unSize);
+        inline unsigned int _BufferSize();
+
+        inline void _SetupBuffers(unsigned int BufLen);
+        inline void _PopulateBuffer(char accessor);
+        inline void _PopulateBuffer(char accessor, char * param);
+        inline void _CleanBuffers();
+        inline bool _BombsAway();
+        inline GForce _GetSIRange(MeasureRange range);
 };
 
 #endif
