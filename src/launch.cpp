@@ -171,15 +171,16 @@ int StartSpiTester(){
 int BasicAccelerometerTest(){
     try{
         StAccel_dsh * accel = new StAccel_dsh();
-        // do stuff with acceleromter
+        // Fill with accel calls
         delete accel;
     }catch(int e){
-        cout << e << endl;
+        cout << "Exception: " << e << endl;
         return 1;
     }
     return 0;
 }
 
 int main(){
+
     return BasicAccelerometerTest();
 }
