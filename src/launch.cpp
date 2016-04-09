@@ -262,6 +262,16 @@ int AccelerometerTest(){
             }
 
             cout << (accel->UseFifo((val==0?false:true)) ? "o " : "x " );
+        }else if(cmd.substr(0,6) == "IsFifoEmpty" || cmd.substr(0,6) == "isfifoempty"){
+            bool val;
+            bool rtrn = accel->IsFifoEmpty(val);
+            cout << "\t" << (val?"Yes":"No") << endl;
+            cout << (rtrn ? "o " : "x " );
+        }else if(cmd.substr(0,6) == "IsFifoOverrun" || cmd.substr(0,6) == "isfifooverrun"){
+            bool val;
+            bool rtrn = accel->IsFifoOverrun(val);
+            cout << "\t" << (val?"Yes":"No") << endl;
+            cout << (rtrn ? "o " : "x " );
         }else if(cmd.substr(0,14) == "DataOverrunXYZ" || cmd.substr(0,14) == "dataoverrunxyz"){
             bool val;
             bool rtrn = accel->DataOverrunXYZ(val);
@@ -350,12 +360,12 @@ int AccelerometerTest(){
             }
 
             cout << (accel->UseAxisZ((val==0?false:true)) ? "o " : "x " );
-        }else if(cmd.substr(0,5) == "IsBSU" || cmd.substr(0,5) == "isbsu"){
+        }else if(cmd.substr(0,5) == "IsBDU" || cmd.substr(0,5) == "isbdu"){
             bool val;
-            bool rtrn = accel->IsBSU(val);
+            bool rtrn = accel->IsBDU(val);
             cout << "\t" << (val?"Yes":"No") << endl;
             cout << (rtrn ? "o " : "x " );
-        }else if(cmd.substr(0,6) == "UseBSU" || cmd.substr(0,6) == "usebsu"){
+        }else if(cmd.substr(0,6) == "UseBDU" || cmd.substr(0,6) == "usebdu"){
             char val;
 
             try {
@@ -365,7 +375,7 @@ int AccelerometerTest(){
                 continue;
             }
 
-            cout << (accel->UseBSU((val==0?false:true)) ? "o " : "x " );
+            cout << (accel->UseBDU((val==0?false:true)) ? "o " : "x " );
         }else if(cmd.substr(0,9) == "IsReadInc" || cmd.substr(0,9) == "isreadinc"){
             bool val;
             bool rtrn = accel->IsReadInc(val);
@@ -383,15 +393,22 @@ int AccelerometerTest(){
 
             cout << (accel->UseReadInc((val==0?false:true)) ? "o " : "x " );
         }else if(cmd.substr(0,15) == "ReadAccel" || cmd.substr(0,15) == "readaccel"){
-
+            Sensor::RawAcceleromterData val;
+            bool rtrn = accel->ReadSensorDataOnce(val);
+            GForce * out = accel->ConvertToSIUnit(val);
+            cout << "\t" << "X: "<< out[0] << " g" << endl;
+            cout << "\t" << "Y: "<< out[1] << " g" << endl;
+            cout << "\t" << "Z: "<< out[2] << " g" << endl;
+            cout << (rtrn ? "o " : "x " );
         }else if(cmd.substr(0,14) == "ReadTemp" || cmd.substr(0,14) == "readtemp"){
             Sensor::RawThermometerData val;
             bool rtrn = accel->ReadSensorDataOnce(val);
-            cout << "\t" << (unsigned int)val.nTemp << endl;
+            cout << "\t" << accel->ConvertToSIUnit(val) << "°" << endl;
             cout << (rtrn ? "o " : "x " );
         }else
             cout << "invalid command" << endl;
     }
+
     delete accel;
     return 0;
 }
