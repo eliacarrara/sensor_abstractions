@@ -60,6 +60,8 @@ StAccel_dsh::StAccel_dsh()
 
     if(!IsReadInc(m_bReadInc))
         throw REG_READ_ERROR;
+    if(!GetRange(m_eRange))
+        throw REG_READ_ERROR;
 }
 StAccel_dsh::~StAccel_dsh()
 {
@@ -98,6 +100,24 @@ void StAccel_dsh::_CleanBuffers()
 bool StAccel_dsh::_BombsAway()
 {
     return ((SpiBus*)m_clsBus)->Transact(m_pcRxBuf,m_pcTxBuf, m_unBuffSize);
+}
+
+GForce StAccel_dsh::_GetSIRange(StAccel_dsh::MeasureRange range)
+{
+    switch (range) {
+    case Range_0:
+        return 2.0f;
+    case Range_1:
+        return 4.0f;
+    case Range_2:
+        return 6.0f;
+    case Range_3:
+        return 8.0f;
+    case Range_4:
+        return 16.0f;
+    default:
+        return 0.0f;
+    }
 }
 
 eReturnCode StAccel_dsh::MultiRead(RegPtr psReg, unsigned int BytesToRead, char * pcRxData)
@@ -301,6 +321,7 @@ bool StAccel_dsh::GetRange(StAccel_dsh::MeasureRange & Value)
         return false;
 
     Value = (MeasureRange)((out & 0x38) >> 3);
+    m_eRange = Value;
     return true;
 }
 bool StAccel_dsh::SetRange(StAccel_dsh::MeasureRange Value)
@@ -315,8 +336,9 @@ bool StAccel_dsh::SetRange(StAccel_dsh::MeasureRange Value)
 
     if ( code != OK)
         return false;
-    else
-        return true;
+
+    m_eRange = Value;
+    return true;
 }
 
 bool StAccel_dsh::IsFifoEnabled(bool & Value)
@@ -347,6 +369,29 @@ bool StAccel_dsh::UseFifo(bool Value)
         return false;
     else
         return true;
+}
+
+bool StAccel_dsh::IsFifoEmpty(bool &Value)
+{
+    char out;
+    eReturnCode code = Read(m_RegFifoSrc, out);
+
+    if ( code != OK)
+        return false;
+
+    Value = ((out & 0x20) == 0x20);
+    return true;
+}
+bool StAccel_dsh::IsFifoOverrun(bool &Value)
+{
+    char out;
+    eReturnCode code = Read(m_RegFifoSrc, out);
+
+    if ( code != OK)
+        return false;
+
+    Value = ((out & 0x40) == 0x40);
+    return true;
 }
 
 bool StAccel_dsh::DataOverrunXYZ(bool & Value)
@@ -503,7 +548,7 @@ bool StAccel_dsh::UseAxisZ(bool Value)
         return true;
 }
 
-bool StAccel_dsh::IsBSU(bool & Value)
+bool StAccel_dsh::IsBDU(bool & Value)
 {
     char out;
     eReturnCode code = Read(m_RegCtrlReg4,out);
@@ -512,7 +557,7 @@ bool StAccel_dsh::IsBSU(bool & Value)
     Value = ((out & 0x08) == 0x08);
     return true;
 }
-bool StAccel_dsh::UseBSU(bool Value)
+bool StAccel_dsh::UseBDU(bool Value)
 {
     char out;
     eReturnCode code = Read(m_RegCtrlReg4,out);
@@ -570,15 +615,51 @@ bool StAccel_dsh::ReadSensorDataOnce(Sensor::RawThermometerData & OutData)
 }
 bool StAccel_dsh::ReadSensorDataOnce(Sensor::RawAcceleromterData & OutData)
 {
+    char out[6]= {0,0,0,0,0,0};
+    char code = OK;
 
-    return false;
+    if(m_bReadInc){
+        code = MultiRead(m_RegOutX_L, 6, out);
+    }else{
+        code |= Read(m_RegOutX_L, out[0]);
+        code |= Read(m_RegOutX_H, out[1]);
+        code |= Read(m_RegOutY_L, out[2]);
+        code |= Read(m_RegOutY_H, out[3]);
+        code |= Read(m_RegOutZ_L, out[4]);
+        code |= Read(m_RegOutZ_H, out[5]);
+    }
+
+    if ( code != OK)
+        return false;
+
+    short tmp = out[1];
+    tmp <<= 8;
+    tmp |= out[0];
+    OutData.nX_Data = tmp;
+
+    tmp = out[3];
+    tmp <<= 8;
+    tmp |= out[2];
+    OutData.nY_Data = tmp;
+
+    tmp = out[5];
+    tmp <<= 8;
+    tmp |= out[4];
+    OutData.nZ_Data = tmp;
+
+    return true;
 }
 
 Celcius StAccel_dsh::ConvertToSIUnit(Sensor::RawThermometerData Data)
 {
-    return 0.0;
+    signed char tmp = (signed char)Data.nTemp;
+    return (float)(25 + tmp);
 }
-GForge StAccel_dsh::ConvertToSIUnit(Sensor::RawAcceleromterData Data)
+GForce * StAccel_dsh::ConvertToSIUnit(Sensor::RawAcceleromterData Data)
 {
-    return 0.0;
+    GForce * out= (GForce*)calloc(3,sizeof(float));
+    out[0] = (float)((float)Data.nX_Data / 32767.0F) * _GetSIRange(m_eRange);
+    out[1] = (float)((float)Data.nY_Data / 32767.0F) * _GetSIRange(m_eRange);
+    out[2] = (float)((float)Data.nZ_Data / 32767.0F) * _GetSIRange(m_eRange);
+    return out;
 }
