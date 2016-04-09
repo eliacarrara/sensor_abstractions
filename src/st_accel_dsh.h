@@ -23,7 +23,7 @@ class StAccel_dsh : public Sensor::Thermometer, public Sensor::Accelerometer, pu
         m_RegOutX_L, m_RegOutX_H, m_RegOutY_L, m_RegOutY_H, m_RegOutZ_L, m_RegOutZ_H, m_RegFifoCtrl,
         m_RegFifoSrc;
 
-        char * m_pcTxbuf = 0;
+        char * m_pcTxBuf = 0;
         char * m_pcRxBuf = 0;
         unsigned int m_unBuffSize;
         bool m_bReadInc;
@@ -33,14 +33,14 @@ class StAccel_dsh : public Sensor::Thermometer, public Sensor::Accelerometer, pu
         eReturnCode Read(RegPtr psReg, char & cValue);
         eReturnCode Write(RegPtr psReg, char & cValue);
 
-        inline void BufferSize(unsigned int unSize);
-        inline unsigned int BufferSize();
+        inline void _BufferSize(unsigned int unSize);
+        inline unsigned int _BufferSize();
 
-        inline void SetupBuffers(unsigned int BufLen);
-        inline void PopulateBuffer(char accessor);
-        inline void PopulateBuffer(char accessor, char * param);
-        inline void CleanBuffers();
-        inline bool BombsAway();
+        inline void _SetupBuffers(unsigned int BufLen);
+        inline void _PopulateBuffer(char accessor);
+        inline void _PopulateBuffer(char accessor, char * param);
+        inline void _CleanBuffers();
+        inline bool _BombsAway();
     public:
         StAccel_dsh();
         ~StAccel_dsh();
@@ -68,7 +68,7 @@ class StAccel_dsh : public Sensor::Thermometer, public Sensor::Accelerometer, pu
         bool SoftReset();
         bool Reboot();
 
-        bool ReadInfomation(unsigned int & unInfo);
+        bool ReadInfomation(unsigned short & unInfo);
         bool ReadWhoAmI(char & WhoAmI);
 
         bool GetODR(ODR & Value);

@@ -2,6 +2,8 @@
 #include <malloc.h>
 #include <spibus.h>
 #include <error.h>
+#include <iostream>
+using namespace std;
 
 StAccel_dsh::StAccel_dsh()
 {
@@ -58,7 +60,6 @@ StAccel_dsh::StAccel_dsh()
 
     if(!IsReadInc(m_bReadInc))
         throw REG_READ_ERROR;
-
 }
 StAccel_dsh::~StAccel_dsh()
 {
@@ -70,33 +71,33 @@ StAccel_dsh::~StAccel_dsh()
     }
 }
 
-void StAccel_dsh::BufferSize(unsigned int unSize)
+void StAccel_dsh::_BufferSize(unsigned int unSize)
 {
     m_unBuffSize = unSize;
 }
-unsigned int StAccel_dsh::BufferSize()
+unsigned int StAccel_dsh::_BufferSize()
 {
     return m_unBuffSize;
 }
-void StAccel_dsh::SetupBuffers(unsigned int BufLen)
+void StAccel_dsh::_SetupBuffers(unsigned int BufLen)
 {
     m_pcRxBuf = (char*)calloc(BufLen, sizeof(char));
-    m_pcTxbuf = (char*)calloc(BufLen, sizeof(char));
-    BufferSize(BufLen);
+    m_pcTxBuf = (char*)calloc(BufLen, sizeof(char));
+    _BufferSize(BufLen);
 }
-void StAccel_dsh::PopulateBuffer(char accessor)
+void StAccel_dsh::_PopulateBuffer(char accessor)
 {
-    m_pcTxbuf[0] = accessor;
+    m_pcTxBuf[0] = accessor;
 }
-void StAccel_dsh::CleanBuffers()
+void StAccel_dsh::_CleanBuffers()
 {
-    BufferSize(0);
+    _BufferSize(0);
     free(m_pcRxBuf);
-    free(m_pcTxbuf);
+    free(m_pcTxBuf);
 }
-bool StAccel_dsh::BombsAway()
+bool StAccel_dsh::_BombsAway()
 {
-    return ((SpiBus*)m_clsBus)->Transact(m_pcRxBuf,m_pcTxbuf, m_unBuffSize);
+    return ((SpiBus*)m_clsBus)->Transact(m_pcRxBuf,m_pcTxBuf, m_unBuffSize);
 }
 
 eReturnCode StAccel_dsh::MultiRead(RegPtr psReg, unsigned int BytesToRead, char * pcRxData)
@@ -107,8 +108,8 @@ eReturnCode StAccel_dsh::MultiRead(RegPtr psReg, unsigned int BytesToRead, char 
         return MultiAccessDisabled;
 
     // Creates new buffers and poplates it with data
-    SetupBuffers(BytesToRead + 1);
-    PopulateBuffer(psReg->cAddress);
+    _SetupBuffers(BytesToRead + 1);
+    _PopulateBuffer(psReg->cAddress);
 
     // Checks access rights
     for (unsigned int i = 0; i < BytesToRead; ++i)
@@ -116,10 +117,10 @@ eReturnCode StAccel_dsh::MultiRead(RegPtr psReg, unsigned int BytesToRead, char 
             return NoAccess;
 
     // Executes spi tranfer
-    bool rtrn = BombsAway();
+    bool rtrn = _BombsAway();
 
     // Frees resouces
-    CleanBuffers();
+    _CleanBuffers();
 
     if (rtrn){
         // reads data from the buffer
@@ -140,11 +141,11 @@ eReturnCode StAccel_dsh::MultiWrite(RegPtr psReg, unsigned int BytesToRead, char
         return NothingToWrite;
 
     // Creates new buffers and poplates it with data
-    SetupBuffers(BytesToRead + 1);
-    PopulateBuffer(psReg->cAddress);
+    _SetupBuffers(BytesToRead + 1);
+    _PopulateBuffer(psReg->cAddress);
 
     for (unsigned int i = 0; i < BytesToRead; ++i) {
-        m_pcTxbuf[i+1] = pcTxData[i];
+        m_pcTxBuf[i+1] = pcTxData[i];
     }
 
     // Checks access rights and if locked bits would get written on
@@ -157,10 +158,10 @@ eReturnCode StAccel_dsh::MultiWrite(RegPtr psReg, unsigned int BytesToRead, char
     }
 
     // Executes spi tranfer
-    bool rtrn = BombsAway();
+    bool rtrn = _BombsAway();
 
     // Frees resouces
-    CleanBuffers();
+    _CleanBuffers();
 
     if (rtrn){
         return OK;
@@ -172,16 +173,16 @@ eReturnCode StAccel_dsh::Read(RegPtr psReg, char & cValue)
     if (!CheckRegisterAccess(psReg, READ_ACCESS))
         return NoAccess;
 
-    SetupBuffers(ACC_SPI_DEFAULT_BUFF_LEN);
-    PopulateBuffer(psReg->cAddress);
+    _SetupBuffers(ACC_SPI_DEFAULT_BUFF_LEN);
+    _PopulateBuffer(ACC_SPI_MSG(psReg->cAddress,ACC_SPI_READ_FLAG));
 
-    if (BombsAway()){
+    if (_BombsAway()){
         cValue = m_pcRxBuf[1];
         return OK;
     }else
         return TerribleError;
 
-    CleanBuffers();
+    _CleanBuffers();
 }
 eReturnCode StAccel_dsh::Write(RegPtr psReg, char & cValue)
 {
@@ -190,17 +191,17 @@ eReturnCode StAccel_dsh::Write(RegPtr psReg, char & cValue)
     if (!CheckLockedBits(psReg, cValue))
         return WritingLockedBits;
 
-    SetupBuffers(ACC_SPI_DEFAULT_BUFF_LEN);
+    _SetupBuffers(ACC_SPI_DEFAULT_BUFF_LEN);
 
-    PopulateBuffer(psReg->cAddress);
-    m_pcTxbuf[1] = cValue;
+    _PopulateBuffer(ACC_SPI_MSG(psReg->cAddress,ACC_SPI_READ_FLAG));
+    m_pcTxBuf[1] = cValue;
 
-    if (BombsAway())
+    if (_BombsAway())
         return OK;
     else
         return TerribleError;
 
-    CleanBuffers();
+    _CleanBuffers();
 }
 
 bool StAccel_dsh::SoftReset()
@@ -234,7 +235,7 @@ bool StAccel_dsh::Reboot()
         return true;
 }
 
-bool StAccel_dsh::ReadInfomation(unsigned int & unInfo)
+bool StAccel_dsh::ReadInfomation(unsigned short & unInfo)
 {
     char code = OK;
     char out[2];
@@ -255,7 +256,7 @@ bool StAccel_dsh::ReadInfomation(unsigned int & unInfo)
 bool StAccel_dsh::ReadWhoAmI(char & WhoAmI)
 {
     char out;
-    eReturnCode code = Read(m_RegWhoAmI,out);
+    eReturnCode code = Read(m_RegWhoAmI, out);
 
     if ( code != OK)
         return false;
@@ -533,6 +534,7 @@ bool StAccel_dsh::IsReadInc(bool & Value)
 {
     char out;
     eReturnCode code = Read(m_RegCtrlReg6,out);
+
     if ( code != OK)
         return false;
     Value = ((out & 0x10) == 0x10);
