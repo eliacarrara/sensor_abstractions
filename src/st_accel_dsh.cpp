@@ -102,14 +102,15 @@ bool StAccel_dsh::_BombsAway()
 
 eReturnCode StAccel_dsh::MultiRead(RegPtr psReg, unsigned int BytesToRead, char * pcRxData)
 {
-#pragma message "test this very well"
     // Checks if the access incrementing flag is set
     if (!m_bReadInc)
         return MultiAccessDisabled;
+    if(pcRxData == NULL)
+        return BufferError;
 
     // Creates new buffers and poplates it with data
     _SetupBuffers(BytesToRead + 1);
-    _PopulateBuffer(psReg->cAddress);
+    _PopulateBuffer(ACC_SPI_MSG(psReg->cAddress,ACC_SPI_READ_FLAG));
 
     // Checks access rights
     for (unsigned int i = 0; i < BytesToRead; ++i)
@@ -119,30 +120,30 @@ eReturnCode StAccel_dsh::MultiRead(RegPtr psReg, unsigned int BytesToRead, char 
     // Executes spi tranfer
     bool rtrn = _BombsAway();
 
+    // reads data from the buffer
+    for (unsigned int i = 0; i < BytesToRead; ++i)
+        pcRxData[i] = m_pcRxBuf[i+1];
+
     // Frees resouces
     _CleanBuffers();
 
     if (rtrn){
-        // reads data from the buffer
-        pcRxData = (char*)malloc(BytesToRead);
-        for (unsigned int i = 1; i < m_unBuffSize; ++i)
-            pcRxData[i-1] = m_pcRxBuf[i];
         return OK;
     }else
         return TerribleError;
 }
 eReturnCode StAccel_dsh::MultiWrite(RegPtr psReg, unsigned int BytesToRead, char * pcTxData)
 {
-#pragma message "test this very well"
+#pragma message "I never tested nor used this methond - use with caution"
     // Checks if the access incrementing flag is set
     if (!m_bReadInc)
         return MultiAccessDisabled;
     if (pcTxData == NULL)
-        return NothingToWrite;
+        return BufferError;
 
     // Creates new buffers and poplates it with data
     _SetupBuffers(BytesToRead + 1);
-    _PopulateBuffer(psReg->cAddress);
+    _PopulateBuffer(ACC_SPI_MSG(psReg->cAddress,ACC_SPI_WRITE_FLAG));
 
     for (unsigned int i = 0; i < BytesToRead; ++i) {
         m_pcTxBuf[i+1] = pcTxData[i];
@@ -193,7 +194,7 @@ eReturnCode StAccel_dsh::Write(RegPtr psReg, char & cValue)
 
     _SetupBuffers(ACC_SPI_DEFAULT_BUFF_LEN);
 
-    _PopulateBuffer(ACC_SPI_MSG(psReg->cAddress,ACC_SPI_READ_FLAG));
+    _PopulateBuffer(ACC_SPI_MSG(psReg->cAddress,ACC_SPI_WRITE_FLAG));
     m_pcTxBuf[1] = cValue;
 
     if (_BombsAway())
@@ -238,10 +239,10 @@ bool StAccel_dsh::Reboot()
 bool StAccel_dsh::ReadInfomation(unsigned short & unInfo)
 {
     char code = OK;
-    char out[2];
+    char out[2]={0,0};
 
     if(m_bReadInc){
-        code = MultiRead(m_RegInfo1, 3, out);
+        code = MultiRead(m_RegInfo1, 2, out);
     }else{
         code |= Read(m_RegInfo1, out[0]);
         code |= Read(m_RegInfo2, out[1]);
@@ -249,11 +250,10 @@ bool StAccel_dsh::ReadInfomation(unsigned short & unInfo)
 
     if ( code != OK)
         return false;
-
     unInfo =  *((short*)out);
     return true;
 }
-bool StAccel_dsh::ReadWhoAmI(char & WhoAmI)
+bool StAccel_dsh::WhoAmI(char & WhoAmI)
 {
     char out;
     eReturnCode code = Read(m_RegWhoAmI, out);
@@ -283,7 +283,7 @@ bool StAccel_dsh::SetODR(StAccel_dsh::ODR Value)
     if ( code != OK)
         return false;
 
-    out = (out & 0x0F) | (Value << 4);
+    out = ((out & 0x0F) | ((char)Value << 4));
     code = Write(m_RegCtrlReg4, out);
 
     if ( code != OK)
