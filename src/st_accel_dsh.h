@@ -12,7 +12,7 @@
 
 #define ACC_SPI_READ_FLAG 0x80
 #define ACC_SPI_WRITE_FLAG 0x00
-#define ACC_SPI_MSG(REG_ID,ACCESS) ((REG_ID & 0x7F) | ACCESS)
+#define ACC_SPI_MSG(REG_ID,FLAG) ((REG_ID & 0x7F) | FLAG)
 #define ACC_SPI_DEFAULT_BUFF_LEN 2
 
 class StAccel_dsh : public Sensor::Thermometer, public Sensor::Accelerometer, public ICDevice {
@@ -46,7 +46,7 @@ class StAccel_dsh : public Sensor::Thermometer, public Sensor::Accelerometer, pu
         ~StAccel_dsh();
 
         enum ODR{
-            OFF             = 0,    // PowerDown
+            ODR_OFF         = 0x0,    // PowerDown
             ODR_SPEED_0     = 0x1,  // 3.125 Hz
             ODR_SPEED_1     = 0x2,  // 6.25 Hz
             ODR_SPEED_2     = 0x3,  // 12.5 Hz
@@ -69,7 +69,7 @@ class StAccel_dsh : public Sensor::Thermometer, public Sensor::Accelerometer, pu
         bool Reboot();
 
         bool ReadInfomation(unsigned short & unInfo);
-        bool ReadWhoAmI(char & WhoAmI);
+        bool WhoAmI(char & WhoAmI);
 
         bool GetODR(ODR & Value);
         bool SetODR(ODR Value);
