@@ -7,8 +7,12 @@
 #ifndef BUS_H
 #define BUS_H
 
+/// Includes all communication related items
 namespace Communication {
 
+/// \brief The Bus class represents the base class for any type of communication.
+/// \details This class includes functions to open, close a communication method
+/// and transfer data. The Transact() method was implemented to support full duplex.
 class Bus{
 public:
 	virtual bool IsOpen()=0;
