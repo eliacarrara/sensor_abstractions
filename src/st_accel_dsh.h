@@ -12,7 +12,7 @@
 
 #define ACC_SPI_READ_FLAG 0x80
 #define ACC_SPI_WRITE_FLAG 0x00
-#define ACC_SPI_MSG(REG_ID,FLAG) ((REG_ID & 0x7F) | FLAG)
+#define ACC_SPI_MSG(REG_ID, FLAG) ((REG_ID & 0x7F) | FLAG)
 #define ACC_SPI_DEFAULT_BUFF_LEN 2
 
 class StAccel_dsh : public Sensor::Thermometer, public Sensor::Accelerometer, public ICDevice {
