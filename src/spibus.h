@@ -14,11 +14,7 @@
 #include <sys/ioctl.h>
 #include <linux/spi/spidev.h>
 #include <bus.h>
-
-typedef unsigned int hertz;
-typedef unsigned int microseconds;
-typedef unsigned char bitsperword;
-typedef enum{MSB = 0,LSB = 1} endianess;
+#include <types.h>
 
 namespace Communication{
 

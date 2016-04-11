@@ -7,7 +7,7 @@
 #define ACCELEROMETER_H
 
 #include <sensor.h>
-#include <si_types.h>
+#include <types.h>
 
 namespace Sensor{
 

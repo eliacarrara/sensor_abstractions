@@ -12,7 +12,7 @@ namespace Sensor{
 /// \brief This class represents the base class for sensors.
 /// \details SensorBase represents the base of all sensor classes.
 /// This class uses two template types (S,T). S should be used for
-/// a type defined in si_types.h, T should be used with a raw data type
+/// a type defined in types.h, T should be used with a raw data type
 /// whiche are defined in classes inheriting from SensorBase.
 template <class S, class T>
 class SensorBase {
