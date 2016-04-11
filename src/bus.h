@@ -15,9 +15,24 @@ namespace Communication {
 /// and transfer data. The Transact() method was implemented to support full duplex.
 class Bus{
 public:
+    /// \brief IsOpen should be implemented to checks if the bus is open.
+    /// \return Returns true if the communication bus is open.
 	virtual bool IsOpen()=0;
+    /// \brief Open should be implemented to open and initialize the communication method.
+    /// \return Returns true upon success.
 	virtual bool Open()=0;
+    /// \brief Close should be implemented to close the communication method.
+    /// \return Returns true upon success.
 	virtual bool Close()=0;
+    /// \brief Transact should be implemented to read and/or write data.
+    /// \details Implement Bus in a subclass and define a Read method
+    /// and write callback to use network communication methods.
+    /// \param pcReadBuffer Should be a pointer to a buffer with unLength bytes to fill
+    /// the read data in.
+    /// \param pcWriteBuffer Shoudl be a pointer to a buffer with unLength bytes of
+    /// data to write.
+    /// \param unLength The number of bytes of data to transfer.
+    /// \return Returns true upon success.
     virtual bool Transact(const char * pcReadBuffer, const char * pcWriteBuffer, unsigned int unLength)=0;
 };
 
