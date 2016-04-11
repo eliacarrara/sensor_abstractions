@@ -12,6 +12,7 @@ This project abstacts the functionalities of the sensors I am using ([Accelerome
 ### On the Beaglebone Black
 * Copy the Ubuntu Xenial Version onto an SD Card
 * Boot the Ubuntu image on the SD Card by pressing the boot-button on your Beaglebone Black (BBB)
+
 ### On the computer you will be developing
 * Configure the Ubuntu image to your liking
 * ```sudo apt-get update```
