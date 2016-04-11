@@ -9,8 +9,10 @@ This project abstacts the functionalities of the sensors I am using ([Accelerome
 * doxygen 1.8.9.1
 
 ## Setup
+### On the Beaglebone Black
 * Copy the Ubuntu Xenial Version onto an SD Card
 * Boot the Ubuntu image on the SD Card by pressing the boot-button on your Beaglebone Black (BBB)
+### On the computer you will be developing
 * Configure the Ubuntu image to your liking
 * ```sudo apt-get update```
 * ```sudo apt-get install git cmake gcc-arm-linux-gnueabi g++-arm-linux-gnueabi```
