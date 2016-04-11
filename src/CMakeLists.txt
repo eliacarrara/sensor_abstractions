@@ -31,4 +31,4 @@ add_executable(skywalker_prototype
                         magnetometer.h
                         st_accel_dsh.h st_accel_dsh.cpp
                         error.h
-                        si_types.h)
+                        types.h)
