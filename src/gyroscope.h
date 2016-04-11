@@ -17,10 +17,10 @@ struct RawGyroscopeData{
     int nY_Data;
 };
 
-class Gyroscope : public SensorBase<DPS, RawGyroscopeData> {
+class Gyroscope : public SensorBase<DegreePerSecond, RawGyroscopeData> {
 public:
     virtual bool ReadSensorDataOnce(RawGyroscopeData & OutData)=0;
-    virtual DPS ConvertToSIUnit(RawGyroscopeData Data)=0;
+    virtual DegreePerSecond ConvertToSIUnit(RawGyroscopeData Data)=0;
 };
 
 }
