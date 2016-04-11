@@ -16,6 +16,7 @@
 #define NO_ACCESS 0x0
 #define FULL_ACCESS (READ_ACCESS | WRITE_ACCESS)
 
+/// Encloses all devices related to the skywalker
 namespace Device {
 
 struct sRegister{
@@ -39,7 +40,7 @@ enum eReturnCode{
     NoAccess            = 1,
     WritingLockedBits   = 2,
     InvalidRegister     = 4,
-    BufferError      = 8,
+    BufferError         = 8,
     MultiAccessDisabled = 16,
     TerribleError       = 32,
 };
