@@ -12,8 +12,6 @@ This project abstacts the functionalities of the sensors I am using ([Accelerome
 * Copy the Ubuntu Xenial Version onto an SD Card
 * Boot the Ubuntu image on the SD Card by pressing the boot-button on your Beaglebone Black (BBB)
 * Configure the Ubuntu image to your liking
-* ```
-sudo apt-get update
-sudo apt-get install git cmake gcc-arm-linux-gnueabi g++-arm-linux-gnueabi
-```
+* ```sudo apt-get update```
+* ```sudo apt-get install git cmake gcc-arm-linux-gnueabi g++-arm-linux-gnueabi```
 * Follow [these](http://elinux.org/BeagleBone_Black_Enable_SPIDEV#SPI0  "spi device") instructions to enable the spi device
