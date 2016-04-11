@@ -15,7 +15,7 @@
 #define ACC_SPI_MSG(REG_ID, FLAG) ((REG_ID & 0x7F) | FLAG)
 #define ACC_SPI_DEFAULT_BUFF_LEN 2
 
-class StAccel_dsh : public Sensor::Thermometer, public Sensor::Accelerometer, public ICDevice {
+class StAccel_dsh : public Sensor::Thermometer, public Sensor::Accelerometer, public Device::ICDevice {
     public:
         StAccel_dsh();
         ~StAccel_dsh();
@@ -113,7 +113,7 @@ class StAccel_dsh : public Sensor::Thermometer, public Sensor::Accelerometer, pu
         GForce * ConvertToSIUnit(Sensor::RawAcceleromterData Data);
 private:
         // Registers
-        RegPtr m_RegInfo1, m_RegInfo2, m_RegWhoAmI, m_RegCtrlReg3, m_RegCtrlReg4, m_RegCtrlReg5, m_RegCtrlReg6,
+        Device::RegPtr m_RegInfo1, m_RegInfo2, m_RegWhoAmI, m_RegCtrlReg3, m_RegCtrlReg4, m_RegCtrlReg5, m_RegCtrlReg6,
         m_RegStatus, m_RegOutT, m_RegOffX, m_RegOffY, m_RegOffZ, m_RegCsX, m_RegCsY, m_RegCsZ,
         m_RegLcL, m_RegLcH, m_RegStat, m_RegVfc1, m_RegVfc2, m_RegVfc3, m_RegVfc4, m_RegThrs3,
         m_RegOutX_L, m_RegOutX_H, m_RegOutY_L, m_RegOutY_H, m_RegOutZ_L, m_RegOutZ_H, m_RegFifoCtrl,
@@ -125,10 +125,10 @@ private:
         bool m_bReadInc;
         MeasureRange m_eRange;
 
-        eReturnCode MultiRead(RegPtr psReg, unsigned int BytesToRead, char * pcRxData);
-        eReturnCode MultiWrite(RegPtr psReg, unsigned int BytesToRead, char * pcTxData);
-        eReturnCode Read(RegPtr psReg, char & cValue);
-        eReturnCode Write(RegPtr psReg, char & cValue);
+        Device::eReturnCode MultiRead(Device::RegPtr psReg, unsigned int BytesToRead, char * pcRxData);
+        Device::eReturnCode MultiWrite(Device::RegPtr psReg, unsigned int BytesToRead, char * pcTxData);
+        Device::eReturnCode Read(Device::RegPtr psReg, char & cValue);
+        Device::eReturnCode Write(Device::RegPtr psReg, char & cValue);
 
         inline void _BufferSize(unsigned int unSize);
         inline unsigned int _BufferSize();

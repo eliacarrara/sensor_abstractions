@@ -1,13 +1,15 @@
 #include "icdevice.h"
 #include <malloc.h>
 
+namespace Device{
+
 RegPtr ICDevice::AddRegister(sRegister Reg)
 {
     m_psAllRegisters[m_unCounter] = Reg;
     return &(m_psAllRegisters[m_unCounter++]);
 }
 
-void ICDevice::InitIC(unsigned int NumberOfRegs, Bus * clsBus)
+void ICDevice::InitIC(unsigned int NumberOfRegs, Communication::Bus * clsBus)
 {
     m_psAllRegisters = (sRegister*)malloc(NumberOfRegs * sizeof(sRegister));
     m_unLenRegisters = NumberOfRegs;
@@ -37,4 +39,6 @@ ICDevice::ICDevice()
 ICDevice::~ICDevice()
 {
     free(m_psAllRegisters);
+}
+
 }

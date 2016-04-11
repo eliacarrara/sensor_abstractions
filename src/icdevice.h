@@ -16,6 +16,8 @@
 #define NO_ACCESS 0x0
 #define FULL_ACCESS (READ_ACCESS | WRITE_ACCESS)
 
+namespace Device {
+
 struct sRegister{
 	char cAccess;
 	char cAddress;
@@ -52,7 +54,7 @@ protected:
     ICDevice();
     ~ICDevice();
 
-    Bus * m_clsBus = 0;
+    Communication::Bus * m_clsBus = 0;
     RegPtr AddRegister(sRegister Reg);
 
     virtual eReturnCode Read(RegPtr psReg, char & cValue)=0;
@@ -61,8 +63,9 @@ protected:
     bool CheckRegisterAccess(RegPtr psReg, char ActionCode);
     bool CheckLockedBits(RegPtr psReg, char & tx_out);
 
-    void InitIC(unsigned int NumberOfRegs, Bus * clsBus);
+    void InitIC(unsigned int NumberOfRegs, Communication::Bus * clsBus);
 
 };
 
+}
 #endif

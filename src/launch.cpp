@@ -6,12 +6,12 @@
 
 using namespace std;
 
-bool SpiGetCmd(SpiBus & spibus, string arg){
+bool SpiGetCmd(Communication::SpiBus & spibus, string arg){
 
     if (arg == "mode"){
-        spi_mode spiarg;
+        Communication::spi_mode spiarg;
         if (spibus.GetMode(spiarg))
-            cout << "Mode " << (unsigned int)spiarg << " ("<< GetSpiModeDescription(spiarg) << ")" << endl;
+            cout << "Mode " << (unsigned int)spiarg << " ("<< Communication::GetSpiModeDescription(spiarg) << ")" << endl;
         else
             cout << "An error occured!" << endl;
     } else if (arg == "speed"){
@@ -42,21 +42,21 @@ bool SpiGetCmd(SpiBus & spibus, string arg){
         return false;
     return true;
 }
-bool SpiSetCmd(SpiBus & spibus, string arg){
+bool SpiSetCmd(Communication::SpiBus & spibus, string arg){
     string subarg;
     if (arg.substr(0,4) == "mode"){
-        spi_mode spiarg;
+        Communication::spi_mode spiarg;
         subarg = arg.erase(0,5);
 
         try {
             unsigned int tmp = stoul(subarg, NULL);
-            spiarg = (spi_mode)tmp;
+            spiarg = (Communication::spi_mode)tmp;
         } catch (...) {
             return false;
         }
 
         if (spibus.SetMode(spiarg))
-            cout << "Mode " << (unsigned int)spiarg << " ("<< GetSpiModeDescription(spiarg) << ")" << endl;
+            cout << "Mode " << (unsigned int)spiarg << " ("<< Communication::GetSpiModeDescription(spiarg) << ")" << endl;
         else
             cout << "An error occured!" << endl;
     } else if (arg.substr(0,5) == "speed"){
@@ -134,7 +134,7 @@ void PrintSpiHelp(){
 }
 int SpiTester(){
     string cmd;
-    SpiBus spi0("/dev/spidev1.0");
+    Communication::SpiBus spi0("/dev/spidev1.0");
 
     PrintSpiHelp();
 

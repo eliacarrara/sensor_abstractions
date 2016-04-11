@@ -1,5 +1,7 @@
 #include "spibus.h"
 
+namespace Communication{
+
 SpiBus::SpiBus(const char * strFile){
     m_nFd = -1;
     m_strDevFile = strFile;
@@ -125,4 +127,4 @@ bool SpiBus::SetEndianness(endianess &eEndianess)
     return (ioctl(m_nFd, SPI_IOC_WR_LSB_FIRST, &eEndianess) >= 0);
 }
 
-
+}

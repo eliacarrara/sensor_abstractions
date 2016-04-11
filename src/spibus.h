@@ -17,10 +17,12 @@
 
 typedef unsigned int hertz;
 typedef unsigned int microseconds;
-typedef unsigned char spi_mode;
 typedef unsigned char bitsperword;
 typedef enum{MSB = 0,LSB = 1} endianess;
 
+namespace Communication{
+
+typedef unsigned char spi_mode;
 inline const char * GetSpiModeDescription(spi_mode ucMode){
 #define TXT_CPHA_0 "Sampling occures on the leading phase of the clock signal."
 #define TXT_CPHA_1 "Sampling occures on the trailing phase of the clock signal."
@@ -74,5 +76,6 @@ public:
     bool SetEndianness(endianess & eEndianess);
 };
 
+}
 
 #endif

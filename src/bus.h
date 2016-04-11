@@ -7,6 +7,8 @@
 #ifndef BUS_H
 #define BUS_H
 
+namespace Communication {
+
 class Bus{
 public:
 	virtual bool IsOpen()=0;
@@ -15,4 +17,5 @@ public:
     virtual bool Transact(const char * pcReadBuffer, const char * pcWriteBuffer, unsigned int unLength)=0;
 };
 
+}
 #endif
