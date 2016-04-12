@@ -60,16 +60,16 @@ public:
     bool Transact(const char * pcReadBuffer, const char * pcWriteBuffer, unsigned int nLength);
 
     bool GetMode(spi_mode & ucMode);
-    bool GetBitsPerWord(bitsperword & ucBPW);
-    bool GetSpeed(hertz & unSpeed);
-    bool GetDelay(microseconds & unDelay);
-    bool GetEndianness(endianess & eEndianess);
+    bool GetBitsPerWord(BitsPerWord & ucBPW);
+    bool GetSpeed(Hertz & unSpeed);
+    bool GetDelay(MicroSeconds & unDelay);
+    bool GetEndianness(Endianess & eEndianess);
 
     bool SetMode(spi_mode & ucMode);
-    bool SetBitsPerWord(bitsperword & ucBPW);
-    bool SetSpeed(hertz & unSpeed);
-    bool SetDelay(microseconds & unDelay);
-    bool SetEndianness(endianess & eEndianess);
+    bool SetBitsPerWord(BitsPerWord & ucBPW);
+    bool SetSpeed(Hertz & unSpeed);
+    bool SetDelay(MicroSeconds & unDelay);
+    bool SetEndianness(Endianess & eEndianess);
 };
 
 }

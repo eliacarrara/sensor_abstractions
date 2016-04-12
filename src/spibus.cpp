@@ -53,21 +53,21 @@ bool SpiBus::GetMode(spi_mode &ucMode)
     return (ioctl(m_nFd, SPI_IOC_RD_MODE, &ucMode) >= 0);
 }
 
-bool SpiBus::GetBitsPerWord(bitsperword &ucBPW)
+bool SpiBus::GetBitsPerWord(BitsPerWord &ucBPW)
 {
     if (!IsOpen())
         return false;
     return (ioctl(m_nFd, SPI_IOC_RD_BITS_PER_WORD, &ucBPW) >= 0);
 }
 
-bool SpiBus::GetSpeed(hertz &unSpeed)
+bool SpiBus::GetSpeed(Hertz &unSpeed)
 {
     if (!IsOpen())
         return false;
     return (ioctl(m_nFd, SPI_IOC_RD_MAX_SPEED_HZ, &unSpeed) >= 0);
 }
 
-bool SpiBus::GetDelay(microseconds &unDelay)
+bool SpiBus::GetDelay(MicroSeconds &unDelay)
 {
     if (!IsOpen())
         return false;
@@ -75,14 +75,14 @@ bool SpiBus::GetDelay(microseconds &unDelay)
     return true;
 }
 
-bool SpiBus::GetEndianness(endianess &eEndianess)
+bool SpiBus::GetEndianness(Endianess &eEndianess)
 {
     if (!IsOpen())
         return false;
 
     char endian;
     bool rtrn = ioctl(m_nFd, SPI_IOC_RD_LSB_FIRST, &endian) >= 0;
-    eEndianess = (endianess)endian;
+    eEndianess = (Endianess)endian;
     return rtrn;
 }
 
@@ -95,7 +95,7 @@ bool SpiBus::SetMode(spi_mode &ucMode)
     return (ioctl(m_nFd, SPI_IOC_WR_MODE, &ucMode) >= 0);
 }
 
-bool SpiBus::SetBitsPerWord(bitsperword &ucBPW)
+bool SpiBus::SetBitsPerWord(BitsPerWord &ucBPW)
 {
     if (!IsOpen())
         return false;
@@ -103,7 +103,7 @@ bool SpiBus::SetBitsPerWord(bitsperword &ucBPW)
     return (ioctl(m_nFd, SPI_IOC_WR_BITS_PER_WORD, &ucBPW) >= 0);
 }
 
-bool SpiBus::SetSpeed(hertz &unSpeed)
+bool SpiBus::SetSpeed(Hertz &unSpeed)
 {
     if (!IsOpen())
         return false;
@@ -111,7 +111,7 @@ bool SpiBus::SetSpeed(hertz &unSpeed)
     return (ioctl(m_nFd, SPI_IOC_WR_MAX_SPEED_HZ, &unSpeed) >= 0);
 }
 
-bool SpiBus::SetDelay(microseconds &unDelay)
+bool SpiBus::SetDelay(MicroSeconds &unDelay)
 {
     if (!IsOpen())
         return false;
@@ -119,7 +119,7 @@ bool SpiBus::SetDelay(microseconds &unDelay)
     return true;
 }
 
-bool SpiBus::SetEndianness(endianess &eEndianess)
+bool SpiBus::SetEndianness(Endianess &eEndianess)
 {
     if (!IsOpen()){
         return false;
