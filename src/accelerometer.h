@@ -12,13 +12,13 @@
 namespace Sensor{
 
 struct RawAcceleromterData{
-    short nX_Data;
-    short nY_Data;
-    short nZ_Data;
+    int nX_Data;
+    int nY_Data;
+    int nZ_Data;
 };
 
 class Accelerometer : public SensorBase<GForce *, RawAcceleromterData> {
-public:
+public:    
     virtual bool ReadSensorDataOnce(RawAcceleromterData & OutData)=0;
     virtual GForce * ConvertToSIUnit(RawAcceleromterData Data)=0;
 };
