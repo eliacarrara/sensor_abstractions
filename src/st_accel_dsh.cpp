@@ -12,9 +12,8 @@ StAccel_dsh::StAccel_dsh()
     if (!clsBus->Open())
         throw SPI_FILE_OPEN_ERROR;
 
-
     Communication::spi_mode mode = SPI_MODE_3;
-    hertz speed = ACC_SPI_SPEED;
+    Hertz speed = ACC_SPI_SPEED;
 
     if (!clsBus->SetMode(mode))
         throw SPI_PARAM_ERROR;
@@ -235,10 +234,7 @@ bool StAccel_dsh::SoftReset()
     out |= 0x01;
     code = Write(m_RegCtrlReg3, out);
 
-    if ( code != Device::OK)
-        return false;
-    else
-        return true;
+    return (code == Device::OK);
 }
 bool StAccel_dsh::Reboot()
 {
@@ -250,10 +246,7 @@ bool StAccel_dsh::Reboot()
     out |= 0x80;
     code = Write(m_RegCtrlReg6, out);
 
-    if ( code != Device::OK)
-        return false;
-    else
-        return true;
+    return (code == Device::OK);
 }
 
 bool StAccel_dsh::ReadInfomation(unsigned short & unInfo)
@@ -268,21 +261,16 @@ bool StAccel_dsh::ReadInfomation(unsigned short & unInfo)
         code |= Read(m_RegInfo2, out[1]);
     }
 
-    if ( code != Device::OK)
-        return false;
     unInfo =  *((short*)out);
-    return true;
+    return (code == Device::OK);
 }
 bool StAccel_dsh::WhoAmI(char & WhoAmI)
 {
     char out;
     Device::eReturnCode code = Read(m_RegWhoAmI, out);
 
-    if ( code != Device::OK)
-        return false;
-
     WhoAmI = out;
-    return true;
+    return (code == Device::OK);
 }
 
 bool StAccel_dsh::GetODR(StAccel_dsh::ODR & Value)
@@ -290,11 +278,8 @@ bool StAccel_dsh::GetODR(StAccel_dsh::ODR & Value)
     char out;
     Device::eReturnCode code = Read(m_RegCtrlReg4, out);
 
-    if ( code != Device::OK)
-        return false;
-
     Value = (ODR)((out & 0xF0) >> 4);
-    return true;
+    return (code == Device::OK);
 }
 bool StAccel_dsh::SetODR(StAccel_dsh::ODR Value)
 {
@@ -306,10 +291,7 @@ bool StAccel_dsh::SetODR(StAccel_dsh::ODR Value)
     out = ((out & 0x0F) | ((char)Value << 4));
     code = Write(m_RegCtrlReg4, out);
 
-    if ( code != Device::OK)
-        return false;
-    else
-        return true;
+    return (code == Device::OK);
 }
 
 bool StAccel_dsh::GetRange(StAccel_dsh::MeasureRange & Value)
@@ -317,12 +299,9 @@ bool StAccel_dsh::GetRange(StAccel_dsh::MeasureRange & Value)
     char out;
     Device::eReturnCode code = Read(m_RegCtrlReg5, out);
 
-    if (code != Device::OK)
-        return false;
-
     Value = (MeasureRange)((out & 0x38) >> 3);
     m_eRange = Value;
-    return true;
+    return (code == Device::OK);
 }
 bool StAccel_dsh::SetRange(StAccel_dsh::MeasureRange Value)
 {
@@ -334,11 +313,8 @@ bool StAccel_dsh::SetRange(StAccel_dsh::MeasureRange Value)
     out = (out & 0xC7) | (Value << 3);
     code = Write(m_RegCtrlReg5, out);
 
-    if ( code != Device::OK)
-        return false;
-
     m_eRange = Value;
-    return true;
+    return (code == Device::OK);
 }
 
 bool StAccel_dsh::IsFifoEnabled(bool & Value)
@@ -365,135 +341,512 @@ bool StAccel_dsh::UseFifo(bool Value)
         out &= 0xBF;
 
     code = Write(m_RegCtrlReg6, out);
-    if ( code != Device::OK)
-        return false;
-    else
-        return true;
+    return (code == Device::OK);
 }
 
-bool StAccel_dsh::IsFifoEmpty(bool &Value)
+bool StAccel_dsh::IsFifoEmpty(bool & Value)
 {
     char out;
     Device::eReturnCode code = Read(m_RegFifoSrc, out);
-
-    if ( code != Device::OK)
-        return false;
 
     Value = ((out & 0x20) == 0x20);
-    return true;
+    return (code == Device::OK);
 }
-bool StAccel_dsh::IsFifoOverrun(bool &Value)
+bool StAccel_dsh::IsFifoOverrun(bool & Value)
 {
     char out;
     Device::eReturnCode code = Read(m_RegFifoSrc, out);
 
+    Value = ((out & 0x40) == 0x40);
+    return (code == Device::OK);
+}
+
+bool StAccel_dsh::IsDrdyInt(bool & Value)
+{
+    char out;
+    Device::eReturnCode code = Read(m_RegCtrlReg3, out);
+
+    Value = ((out & 0x80) == 0x80);
+    return (code == Device::OK);
+}
+bool StAccel_dsh::UseDrdyInt(bool Value)
+{
+    char out;
+    Device::eReturnCode code = Read(m_RegCtrlReg3,out);
     if ( code != Device::OK)
         return false;
 
-    Value = ((out & 0x40) == 0x40);
-    return true;
+    if(Value)
+        out |= 0x80;
+    else
+        out &= 0x7F;
+
+    code = Write(m_RegCtrlReg3, out);
+    return (code == Device::OK);
+}
+
+bool StAccel_dsh::GetIntPolarity(LogicState & Value)
+{
+    char out;
+    Device::eReturnCode code = Read(m_RegCtrlReg3, out);
+
+    Value = (((out & 0x40) == 0x40) ? High : Low);
+    return (code == Device::OK);
+}
+bool StAccel_dsh::SetIntPolarity(LogicState Value)
+{
+    char out;
+    Device::eReturnCode code = Read(m_RegCtrlReg3,out);
+    if ( code != Device::OK)
+        return false;
+
+    if(Value == High)
+        out |= 0x40;
+    else if(Value == Low)
+        out &= 0xBF;
+    else
+        return false;
+
+    code = Write(m_RegCtrlReg3, out);
+    return (code == Device::OK);
+}
+
+bool StAccel_dsh::GetIntType(InterruptSignalType & Value)
+{
+    char out;
+    Device::eReturnCode code = Read(m_RegCtrlReg3, out);
+
+    Value = (((out & 0x20) == 0x20) ? Pulsed : Latched);
+    return (code == Device::OK);
+}
+bool StAccel_dsh::SetIntType(InterruptSignalType Value)
+{
+    char out;
+    Device::eReturnCode code = Read(m_RegCtrlReg3, out);
+    if ( code != Device::OK)
+        return false;
+
+    if(Value == Pulsed)
+        out |= 0x20;
+    else if(Value == Latched)
+        out &= 0xDF;
+    else
+        return false;
+
+    code = Write(m_RegCtrlReg3, out);
+    return (code == Device::OK);
+}
+
+bool StAccel_dsh::IsInterrupt1(bool & Value)
+{
+    char out;
+    Device::eReturnCode code = Read(m_RegCtrlReg3, out);
+
+    Value = ((out & 0x10) == 0x10);
+    return (code == Device::OK);
+}
+bool StAccel_dsh::UseInterrupt1(bool Value)
+{
+    char out;
+    Device::eReturnCode code = Read(m_RegCtrlReg3,out);
+    if ( code != Device::OK)
+        return false;
+
+    if(Value)
+        out |= 0x10;
+    else
+        out &= 0xEF;
+
+    code = Write(m_RegCtrlReg3, out);
+    return (code == Device::OK);
+}
+
+bool StAccel_dsh::IsInterrupt2(bool & Value)
+{
+    char out;
+    Device::eReturnCode code = Read(m_RegCtrlReg3, out);
+
+    Value = ((out & 0x08) == 0x08);
+    return (code == Device::OK);
+}
+bool StAccel_dsh::UseInterrupt2(bool Value)
+{
+    char out;
+    Device::eReturnCode code = Read(m_RegCtrlReg3,out);
+    if ( code != Device::OK)
+        return false;
+
+    if(Value)
+        out |= 0x08;
+    else
+        out &= 0xF7;
+
+    code = Write(m_RegCtrlReg3, out);
+    return (code == Device::OK);
+}
+
+bool StAccel_dsh::IsBootInt(bool & Value)
+{
+    char out;
+    Device::eReturnCode code = Read(m_RegCtrlReg6, out);
+
+    Value = ((out & 0x01) == 0x01);
+    return (code == Device::OK);
+}
+bool StAccel_dsh::UseBootInt(bool Value)
+{
+    char out;
+    Device::eReturnCode code = Read(m_RegCtrlReg6,out);
+    if ( code != Device::OK)
+        return false;
+
+    if(Value)
+        out |= 0x01;
+    else
+        out &= 0xFE;
+
+    code = Write(m_RegCtrlReg6, out);
+    return (code == Device::OK);
+}
+bool StAccel_dsh::IsFifoEmptyInt(bool & Value)
+{
+    char out;
+    Device::eReturnCode code = Read(m_RegCtrlReg6, out);
+
+    Value = ((out & 0x08) == 0x08);
+    return (code == Device::OK);
+}
+bool StAccel_dsh::UseFifoEmptyInt(bool Value)
+{
+    char out;
+    Device::eReturnCode code = Read(m_RegCtrlReg6,out);
+    if ( code != Device::OK)
+        return false;
+
+    if(Value)
+        out |= 0x08;
+    else
+        out &= 0xF7;
+
+    code = Write(m_RegCtrlReg6, out);
+    return (code == Device::OK);
+}
+bool StAccel_dsh::IsFifoWtmrkInt(bool & Value)
+{
+    char out;
+    Device::eReturnCode code = Read(m_RegCtrlReg6, out);
+
+    Value = ((out & 0x04) == 0x04);
+    return (code == Device::OK);
+}
+bool StAccel_dsh::UseFifoWtmrkInt(bool Value)
+{
+    char out;
+    Device::eReturnCode code = Read(m_RegCtrlReg6,out);
+    if ( code != Device::OK)
+        return false;
+
+    if(Value)
+        out |= 0x04;
+    else
+        out &= 0xFB;
+
+    code = Write(m_RegCtrlReg6, out);
+    return (code == Device::OK);
+}
+bool StAccel_dsh::IsFifoOverrunInt(bool & Value)
+{
+    char out;
+    Device::eReturnCode code = Read(m_RegCtrlReg6, out);
+
+    Value = ((out & 0x02) == 0x02);
+    return (code == Device::OK);
+}
+bool StAccel_dsh::UseFifoOverrunInt(bool Value)
+{
+    char out;
+    Device::eReturnCode code = Read(m_RegCtrlReg6,out);
+    if ( code != Device::OK)
+        return false;
+
+    if(Value)
+        out |= 0x02;
+    else
+        out &= 0xFD;
+
+    code = Write(m_RegCtrlReg6, out);
+    return (code == Device::OK);
+}
+
+bool StAccel_dsh::GetOffset(Sensor::RawAcceleromterData & Value)
+{
+    char code = Device::OK;
+    char out[3]={0,0,0};
+
+    if(m_bReadInc){
+        code = MultiRead(m_RegOffX, 3, out);
+    }else{
+        code |= Read(m_RegOffX, out[0]);
+        code |= Read(m_RegOffY, out[1]);
+        code |= Read(m_RegOffZ, out[2]);
+    }
+
+    Value.nX_Data = out[0];
+    Value.nY_Data = out[1];
+    Value.nZ_Data = out[2];
+    return (code == Device::OK);
+}
+bool StAccel_dsh::SetOffset(Sensor::RawAcceleromterData Value)
+{
+    char code = Device::OK;
+    char out[3] = {0,0,0};
+    out[0] = (char)Value.nX_Data;
+    out[1] = (char)Value.nY_Data;
+    out[2] = (char)Value.nZ_Data;
+
+    if(m_bReadInc){
+        code = MultiWrite(m_RegOffX, 3, out);
+    }else{
+        code |= Write(m_RegOffX, out[0]);
+        code |= Read(m_RegOffY, out[1]);
+        code |= Read(m_RegOffZ, out[2]);
+    }
+
+    return (code == Device::OK);
+}
+
+bool StAccel_dsh::GetFifoMode(FifoMode & Value)
+{
+    char out;
+    Device::eReturnCode code = Read(m_RegFifoCtrl, out);
+
+    Value = (FifoMode)((out & 0xE0) >> 5);
+    return (code == Device::OK);
+}
+bool StAccel_dsh::SetFifoMode(FifoMode Value)
+{
+    char out;
+    Device::eReturnCode code = Read(m_RegFifoCtrl,out);
+    if ( code != Device::OK)
+        return false;
+
+    out |= (0xE0 & ((char)Value << 5));
+    code = Write(m_RegFifoCtrl, out);
+    return (code == Device::OK);
+}
+
+bool StAccel_dsh::IsSPI3WireMode(bool & Value)
+{
+    char out;
+    Device::eReturnCode code = Read(m_RegCtrlReg5, out);
+
+    Value = ((out & 0x01) == 0x01);
+    return (code == Device::OK);
+}
+bool StAccel_dsh::UseSPI3WireMode(bool Value)
+{
+    char out;
+    Device::eReturnCode code = Read(m_RegCtrlReg5,out);
+    if ( code != Device::OK)
+        return false;
+
+    if(Value)
+        out |= 0x01;
+    else
+        out &= 0xFE;
+
+    code = Write(m_RegCtrlReg5, out);
+    return (code == Device::OK);
+}
+
+bool StAccel_dsh::GetAntiAliasFilterBandwidth(AntiAliasingBandwidth & Value)
+{
+    char out;
+    Device::eReturnCode code = Read(m_RegCtrlReg5, out);
+
+    Value = (AntiAliasingBandwidth)((out & 0xC0) >> 6);
+    return (code == Device::OK);
+}
+bool StAccel_dsh::SetAntiAliasFilterBandwidth(AntiAliasingBandwidth Value)
+{
+    char out;
+    Device::eReturnCode code = Read(m_RegCtrlReg5,out);
+    if ( code != Device::OK)
+        return false;
+
+    out |= (0xC0 & ((char)Value << 6));
+    code = Write(m_RegCtrlReg5, out);
+    return (code == Device::OK);
+}
+
+bool StAccel_dsh::IsWatermarkEnabled(bool & Value)
+{
+    char out;
+    Device::eReturnCode code = Read(m_RegCtrlReg6,out);
+
+    Value = ((out & 0x20) == 0x20);
+    return (code == Device::OK);
+}
+bool StAccel_dsh::UseWatermark(bool Value)
+{
+    char out;
+    Device::eReturnCode code = Read(m_RegCtrlReg6,out);
+    if ( code != Device::OK)
+        return false;
+
+    if(Value)
+        out |= 0x20;
+    else
+        out &= 0xDF;
+
+    code = Write(m_RegCtrlReg6, out);
+    return (code == Device::OK);
+}
+bool StAccel_dsh::GetFifoFilledLength(char & Value)
+{
+    char out;
+    Device::eReturnCode code = Read(m_RegFifoSrc, out);
+
+    Value = (out & 0x1F);
+    return (code == Device::OK);
+}
+bool StAccel_dsh::GetWatermarkStatus(bool & Value)
+{
+    char out;
+    Device::eReturnCode code = Read(m_RegFifoSrc, out);
+
+    Value = ((out & 0x80) == 0x80);
+    return (code == Device::OK);
+}
+bool StAccel_dsh::GetWatermarkPointer(char & Value)
+{
+    char out;
+    Device::eReturnCode code = Read(m_RegFifoCtrl, out);
+
+    Value = (out & 0x1F);
+    return (code == Device::OK);
+}
+bool StAccel_dsh::SetWatermarkPointer(char Value)
+{
+    char out;
+    Device::eReturnCode code = Read(m_RegFifoCtrl,out);
+    if ( code != Device::OK)
+        return false;
+
+    out |= (0x1F & Value);
+    code = Write(m_RegFifoCtrl, out);
+    return (code == Device::OK);
+}
+
+bool StAccel_dsh::GetSelfTestMode(SelfTestMode & Value)
+{
+    char out;
+    Device::eReturnCode code = Read(m_RegCtrlReg5, out);
+
+    Value = (SelfTestMode)((out & 0x06) >> 1);
+    return (code == Device::OK);
+}
+bool StAccel_dsh::SetSelfTestMode(SelfTestMode Value)
+{
+    char out;
+    Device::eReturnCode code = Read(m_RegCtrlReg5,out);
+    if ( code != Device::OK)
+        return false;
+
+    out |= (0x06 & ((char)Value << 1));
+    code = Write(m_RegCtrlReg5, out);
+    return (code == Device::OK);
 }
 
 bool StAccel_dsh::DataOverrunXYZ(bool & Value)
 {
     char out;
     Device::eReturnCode code = Read(m_RegStatus,out);
-    if ( code != Device::OK)
-        return false;
+
     Value = ((out & 0x80) == 0x80);
-    return true;
+    return (code == Device::OK);
 }
 bool StAccel_dsh::DataOverrunX(bool & Value)
 {
     char out;
     Device::eReturnCode code = Read(m_RegStatus,out);
-    if ( code != Device::OK)
-        return false;
+
     Value = ((out & 0x10) == 0x10);
-    return true;
+    return (code == Device::OK);
 }
 bool StAccel_dsh::DataOverrunY(bool & Value)
 {
     char out;
     Device::eReturnCode code = Read(m_RegStatus,out);
-    if ( code != Device::OK)
-        return false;
+
     Value = ((out & 0x20) == 0x20);
-    return true;
+    return (code == Device::OK);
 }
 bool StAccel_dsh::DataOverrunZ(bool & Value)
 {
     char out;
     Device::eReturnCode code = Read(m_RegStatus,out);
-    if ( code != Device::OK)
-        return false;
+
     Value = ((out & 0x40) == 0x40);
-    return true;
+    return (code == Device::OK);
 }
 
 bool StAccel_dsh::DataAvailableXYZ(bool & Value)
 {
     char out;
     Device::eReturnCode code = Read(m_RegStatus,out);
-    if ( code != Device::OK)
-        return false;
+
     Value = ((out & 0x08) == 0x08);
-    return true;
+    return (code == Device::OK);
 }
 bool StAccel_dsh::DataAvailableX(bool & Value)
 {
     char out;
     Device::eReturnCode code = Read(m_RegStatus,out);
-    if ( code != Device::OK)
-        return false;
+
     Value = ((out & 0x01) == 0x01);
-    return true;
+    return (code == Device::OK);
 }
 bool StAccel_dsh::DataAvailableY(bool & Value)
 {
     char out;
     Device::eReturnCode code = Read(m_RegStatus,out);
-    if ( code != Device::OK)
-        return false;
+
     Value = ((out & 0x02) == 0x02);
-    return true;
+    return (code == Device::OK);
 }
 bool StAccel_dsh::DataAvailableZ(bool & Value)
 {
     char out;
     Device::eReturnCode code = Read(m_RegStatus,out);
-    if ( code != Device::OK)
-        return false;
+
     Value = ((out & 0x04) == 0x04);
-    return true;
+    return (code == Device::OK);
 }
 
 bool StAccel_dsh::IsXAxisEnabled(bool & Value)
 {
     char out;
     Device::eReturnCode code = Read(m_RegCtrlReg4,out);
-    if ( code != Device::OK)
-        return false;
+
     Value = ((out & 0x04) == 0x04);
-    return true;
+    return (code == Device::OK);
 }
 bool StAccel_dsh::IsYAxisEnabled(bool & Value)
 {
     char out;
     Device::eReturnCode code = Read(m_RegCtrlReg4,out);
-    if ( code != Device::OK)
-        return false;
+
     Value = ((out & 0x02) == 0x02);
-    return true;
+    return (code == Device::OK);
 }
 bool StAccel_dsh::IsZAxisEnabled(bool & Value)
 {
     char out;
     Device::eReturnCode code = Read(m_RegCtrlReg4,out);
-    if ( code != Device::OK)
-        return false;
+
     Value = ((out & 0x01) == 0x01);
-    return true;
+    return (code == Device::OK);
 }
 
 bool StAccel_dsh::UseAxisX(bool Value)
@@ -502,16 +855,14 @@ bool StAccel_dsh::UseAxisX(bool Value)
     Device::eReturnCode code = Read(m_RegCtrlReg4,out);
     if ( code != Device::OK)
         return false;
+
     if(Value)
         out |= 0x04;
     else
         out &= 0xFB;
 
     code = Write(m_RegCtrlReg4, out);
-    if ( code != Device::OK)
-        return false;
-    else
-        return true;
+    return (code == Device::OK);
 }
 bool StAccel_dsh::UseAxisY(bool Value)
 {
@@ -519,16 +870,14 @@ bool StAccel_dsh::UseAxisY(bool Value)
     Device::eReturnCode code = Read(m_RegCtrlReg4,out);
     if ( code != Device::OK)
         return false;
+
     if(Value)
         out |= 0x02;
     else
         out &= 0xFD;
 
     code = Write(m_RegCtrlReg4, out);
-    if ( code != Device::OK)
-        return false;
-    else
-        return true;
+    return (code == Device::OK);
 }
 bool StAccel_dsh::UseAxisZ(bool Value)
 {
@@ -536,26 +885,23 @@ bool StAccel_dsh::UseAxisZ(bool Value)
     Device::eReturnCode code = Read(m_RegCtrlReg4,out);
     if ( code != Device::OK)
         return false;
+
     if(Value)
         out |= 0x01;
     else
         out &= 0xFE;
 
     code = Write(m_RegCtrlReg4, out);
-    if ( code != Device::OK)
-        return false;
-    else
-        return true;
+    return (code == Device::OK);
 }
 
 bool StAccel_dsh::IsBDU(bool & Value)
 {
     char out;
     Device::eReturnCode code = Read(m_RegCtrlReg4,out);
-    if ( code != Device::OK)
-        return false;
+
     Value = ((out & 0x08) == 0x08);
-    return true;
+    return (code == Device::OK);
 }
 bool StAccel_dsh::UseBDU(bool Value)
 {
@@ -563,16 +909,14 @@ bool StAccel_dsh::UseBDU(bool Value)
     Device::eReturnCode code = Read(m_RegCtrlReg4,out);
     if ( code != Device::OK)
         return false;
+
     if(Value)
         out |= 0x08;
     else
         out &= 0xF7;
 
     code = Write(m_RegCtrlReg4, out);
-    if ( code != Device::OK)
-        return false;
-    else
-        return true;
+    return (code == Device::OK);
 }
 
 bool StAccel_dsh::IsReadInc(bool & Value)
@@ -580,11 +924,9 @@ bool StAccel_dsh::IsReadInc(bool & Value)
     char out;
     Device::eReturnCode code = Read(m_RegCtrlReg6,out);
 
-    if ( code != Device::OK)
-        return false;
     Value = ((out & 0x10) == 0x10);
     m_bReadInc = Value;
-    return true;
+    return (code == Device::OK);
 }
 bool StAccel_dsh::UseReadInc(bool Value)
 {
@@ -592,29 +934,28 @@ bool StAccel_dsh::UseReadInc(bool Value)
     Device::eReturnCode code = Read(m_RegCtrlReg6,out);
     if ( code != Device::OK)
         return false;
+
     if(Value)
         out |= 0x10;
     else
         out &= 0xEF;
 
     code = Write(m_RegCtrlReg6, out);
-    if ( code != Device::OK)
-        return false;
     m_bReadInc = Value;
-    return true;
+    return (code == Device::OK);
 }
 
 bool StAccel_dsh::ReadSensorDataOnce(Sensor::RawThermometerData & OutData)
 {
     char value;
     Device::eReturnCode code = Read(m_RegOutT, value);
-    if ( code != Device::OK)
-        return false;
+
     OutData.nTemp = value;
-    return true;
+    return (code == Device::OK);
 }
 bool StAccel_dsh::ReadSensorDataOnce(Sensor::RawAcceleromterData & OutData)
 {
+#pragma message "test this"
     char out[6]= {0,0,0,0,0,0};
     char code = Device::OK;
 
@@ -629,25 +970,11 @@ bool StAccel_dsh::ReadSensorDataOnce(Sensor::RawAcceleromterData & OutData)
         code |= Read(m_RegOutZ_H, out[5]);
     }
 
-    if ( code != Device::OK)
-        return false;
+    OutData.nX_Data = *(short*)(out + 0) << 16;
+    OutData.nY_Data = *(short*)(out + 2) << 16;
+    OutData.nZ_Data = *(short*)(out + 4) << 16;
 
-    short tmp = out[1];
-    tmp <<= 8;
-    tmp |= out[0];
-    OutData.nX_Data = tmp;
-
-    tmp = out[3];
-    tmp <<= 8;
-    tmp |= out[2];
-    OutData.nY_Data = tmp;
-
-    tmp = out[5];
-    tmp <<= 8;
-    tmp |= out[4];
-    OutData.nZ_Data = tmp;
-
-    return true;
+    return (code == Device::OK);
 }
 
 Celcius StAccel_dsh::ConvertToSIUnit(Sensor::RawThermometerData Data)
@@ -657,9 +984,11 @@ Celcius StAccel_dsh::ConvertToSIUnit(Sensor::RawThermometerData Data)
 }
 GForce * StAccel_dsh::ConvertToSIUnit(Sensor::RawAcceleromterData Data)
 {
-    GForce * out= (GForce*)calloc(3,sizeof(float));
-    out[0] = (float)((float)Data.nX_Data / 32767.0F) * _GetSIRange(m_eRange);
-    out[1] = (float)((float)Data.nY_Data / 32767.0F) * _GetSIRange(m_eRange);
-    out[2] = (float)((float)Data.nZ_Data / 32767.0F) * _GetSIRange(m_eRange);
+    GForce * out= (GForce*)calloc(3,sizeof(GForce));
+    float range = _GetSIRange(m_eRange);
+
+    out[0] = ((float)Data.nX_Data / (float)0x80000000) * range;
+    out[1] = ((float)Data.nY_Data / (float)0x80000000) * range;
+    out[2] = ((float)Data.nZ_Data / (float)0x80000000) * range;
     return out;
 }

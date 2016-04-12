@@ -21,7 +21,7 @@ class StAccel_dsh : public Sensor::Thermometer, public Sensor::Accelerometer, pu
         ~StAccel_dsh();
 
         enum ODR{
-            ODR_OFF         = 0x0,    // PowerDown
+            ODR_OFF         = 0x0,  // PowerDown
             ODR_SPEED_0     = 0x1,  // 3.125 Hz
             ODR_SPEED_1     = 0x2,  // 6.25 Hz
             ODR_SPEED_2     = 0x3,  // 12.5 Hz
@@ -39,19 +39,67 @@ class StAccel_dsh : public Sensor::Thermometer, public Sensor::Accelerometer, pu
             Range_3 = 0x3,  // ± 8 g
             Range_4 = 0x4,  // ± 16 g
         };
+        enum AntiAliasingBandwidth{
+            BW_0 = 0x0, // 800Hz
+            BW_1 = 0x1, // 200Hz
+            BW_2 = 0x2, // 400Hz
+            BW_3 = 0x3 // 50Hz
+        };
+        enum FifoMode{
+            Bypass = 0x0,
+            StopWhenFull = 0x1,
+            StreamMode = 0x2,
+            StreamThenFifo = 0x3,
+            BypassThenStream = 0x4,
+            BypassThenFifo = 0x7,
+        };
+        enum SelfTestMode{
+            Off = 0x0, // Normal Mode
+            Positive = 0x1, // Positive sign Mode
+            Negative = 0x2, // Negative sign Mode
+        };
 
         bool SoftReset();
         bool Reboot();
 
+        // IC Identification
         bool ReadInfomation(unsigned short & unInfo);
         bool WhoAmI(char & WhoAmI);
 
+        // Operation Configuration
         bool GetODR(ODR & Value);
         bool SetODR(ODR Value);
 
         bool GetRange(MeasureRange & Value);
         bool SetRange(MeasureRange Value);
 
+        bool IsBDU(bool & Value);
+        bool UseBDU(bool Value);
+
+        bool IsReadInc(bool & Value);
+        bool UseReadInc(bool Value);
+
+        bool IsXAxisEnabled(bool & Value);
+        bool IsYAxisEnabled(bool & Value);
+        bool IsZAxisEnabled(bool & Value);
+
+        bool UseAxisX(bool Value);
+        bool UseAxisY(bool Value);
+        bool UseAxisZ(bool Value);
+
+        bool GetOffset(Sensor::RawAcceleromterData & Value);
+        bool SetOffset(Sensor::RawAcceleromterData Value);
+
+        bool GetSelfTestMode(SelfTestMode & Value);
+        bool SetSelfTestMode(SelfTestMode Value);
+
+        bool GetAntiAliasFilterBandwidth(AntiAliasingBandwidth & Value);
+        bool SetAntiAliasFilterBandwidth(AntiAliasingBandwidth Value);
+
+        bool IsSPI3WireMode(bool & Value);
+        bool UseSPI3WireMode(bool Value);
+
+        // Status
         bool DataOverrunXYZ(bool & Value);
         bool DataOverrunX(bool & Value);
         bool DataOverrunY(bool & Value);
@@ -62,57 +110,59 @@ class StAccel_dsh : public Sensor::Thermometer, public Sensor::Accelerometer, pu
         bool DataAvailableY(bool & Value);
         bool DataAvailableZ(bool & Value);
 
-        bool IsXAxisEnabled(bool & Value);
-        bool IsYAxisEnabled(bool & Value);
-        bool IsZAxisEnabled(bool & Value);
 
-        bool UseAxisX(bool Value);
-        bool UseAxisY(bool Value);
-        bool UseAxisZ(bool Value);
-
-        bool IsBDU(bool & Value);
-        bool UseBDU(bool Value);
-
-        bool IsReadInc(bool & Value);
-        bool UseReadInc(bool Value);
-
+        // Fifo Stuff
         bool IsFifoEnabled(bool & Value);
         bool UseFifo(bool Value);
+
         bool IsFifoEmpty(bool & Value);
         bool IsFifoOverrun(bool & Value);
 
-        //Get/Set Int Sig DRDY
-        //Get/Set Int Sig Polarity
-        //Get/Set Int Sig Latching/Pulsed
-        //Get/Set Int Sig 2 Enabled/Disabled on 2
-        //Get/Set Int Sig 2 Enabled/Disabled on 1
-        //Get/Set Vector Filter Enabled/Disabled
-        //Get/Set Anti aliasing filder bandwith
-        //Get/Set Selftest
-        //Get/Set SPI 3 Wire Mode
-        //Get/Set fifo watermark level
-        //Get/Set fifo empty int
-        //Get/Set fifo watermark int
-        //Get/Set fifo overrun int
-        //Get/Set boot int
-        //Get/Set Offset (x,y,z)
-        //Get/Set Constant shift (x,y,z)
-        //Long counter?
-        //stat reg?
-        //vfc ?
-        //threshold ?
-        //Get/Set Fifo mode
-        //Get/Set Watermark pointer?
-        //Get Watermark status
-        //fifo stored data level?
+        bool GetFifoMode(FifoMode & Value);
+        bool SetFifoMode(FifoMode Value);
 
+        bool IsWatermarkEnabled(bool & Value);
+        bool UseWatermark(bool Value);
+
+        bool GetWatermarkStatus(bool & Value);
+        bool GetFifoFilledLength(char & Value);
+
+        bool GetWatermarkPointer(char & Value);
+        bool SetWatermarkPointer(char Value);
+
+        //Interrupt stuff
+        bool IsDrdyInt(bool & Value);
+        bool UseDrdyInt(bool Value);
+
+        bool GetIntPolarity(LogicState & Value);
+        bool SetIntPolarity(LogicState Value);
+
+        bool GetIntType(InterruptSignalType & Value);
+        bool SetIntType(InterruptSignalType Value);
+
+        bool IsInterrupt1(bool & Value);
+        bool UseInterrupt1(bool Value);
+        bool IsInterrupt2(bool & Value);
+        bool UseInterrupt2(bool Value);
+
+        bool IsBootInt(bool & Value);
+        bool UseBootInt(bool Value);
+        bool IsFifoEmptyInt(bool & Value);
+        bool UseFifoEmptyInt(bool Value);
+        bool IsFifoWtmrkInt(bool & Value);
+        bool UseFifoWtmrkInt(bool Value);
+        bool IsFifoOverrunInt(bool & Value);
+        bool UseFifoOverrunInt(bool Value);
+
+        // State Machine
+
+        // Data gathering
         bool ReadSensorDataOnce(Sensor::RawThermometerData & OutData);
         bool ReadSensorDataOnce(Sensor::RawAcceleromterData & OutData);
 
         Celcius ConvertToSIUnit(Sensor::RawThermometerData Data);
         GForce * ConvertToSIUnit(Sensor::RawAcceleromterData Data);
 private:
-        // Registers
         Device::RegPtr m_RegInfo1, m_RegInfo2, m_RegWhoAmI, m_RegCtrlReg3, m_RegCtrlReg4, m_RegCtrlReg5, m_RegCtrlReg6,
         m_RegStatus, m_RegOutT, m_RegOffX, m_RegOffY, m_RegOffZ, m_RegCsX, m_RegCsY, m_RegCsZ,
         m_RegLcL, m_RegLcH, m_RegStat, m_RegVfc1, m_RegVfc2, m_RegVfc3, m_RegVfc4, m_RegThrs3,
