@@ -21,6 +21,12 @@
 /// \var typedef hertz
 /// \brief Representation for a hertz unit;
 ///
+/// \var typedef LogicState
+/// \brief Representation for a digital signal state;
+///
+/// /// \var typedef InterruptSignalType
+/// \brief Representation for an interrupt signal type;
+///
 /// \var typedef microseconds
 /// \brief Representation for a microsecond unit;
 ///
@@ -37,10 +43,12 @@ typedef float Celcius;
 typedef float Gauss;
 typedef float DegreePerSecond;
 typedef float GForce;
+typedef unsigned int Hertz;
+typedef unsigned int MicroSeconds;
 
-typedef unsigned int hertz;
-typedef unsigned int microseconds;
-typedef unsigned char bitsperword;
-typedef enum{MSB = 0, LSB = 1} endianess;
+typedef unsigned char BitsPerWord;
+typedef enum{Low = 0, High = 1} LogicState;
+typedef enum{Latched = 0, Pulsed = 1} InterruptSignalType;
+typedef enum{MSB = 0, LSB = 1} Endianess;
 
 #endif
