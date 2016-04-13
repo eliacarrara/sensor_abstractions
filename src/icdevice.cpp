@@ -1,5 +1,4 @@
 #include "icdevice.h"
-#include <malloc.h>
 
 namespace Device{
 
@@ -11,7 +10,7 @@ RegPtr ICDevice::AddRegister(sRegister Reg)
 
 void ICDevice::InitIC(unsigned int NumberOfRegs, Communication::Bus * clsBus)
 {
-    m_psAllRegisters = (sRegister*)malloc(NumberOfRegs * sizeof(sRegister));
+    m_psAllRegisters = new sRegister[NumberOfRegs];
     m_unLenRegisters = NumberOfRegs;
     m_clsBus = clsBus;
 }
@@ -38,7 +37,7 @@ ICDevice::ICDevice()
 
 ICDevice::~ICDevice()
 {
-    free(m_psAllRegisters);
+    delete[] m_psAllRegisters;
 }
 
 }

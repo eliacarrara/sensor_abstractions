@@ -1,9 +1,6 @@
 #include "st_accel_dsh.h"
-#include <malloc.h>
 #include <spibus.h>
 #include <error.h>
-#include <iostream>
-using namespace std;
 
 StAccel_dsh::StAccel_dsh()
 {
@@ -82,8 +79,8 @@ unsigned int StAccel_dsh::_BufferSize()
 }
 void StAccel_dsh::_SetupBuffers(unsigned int BufLen)
 {
-    m_pcRxBuf = (char*)calloc(BufLen, sizeof(char));
-    m_pcTxBuf = (char*)calloc(BufLen, sizeof(char));
+    m_pcRxBuf = new char[BufLen];
+    m_pcTxBuf = new char[BufLen];
     _BufferSize(BufLen);
 }
 void StAccel_dsh::_PopulateBuffer(char accessor)
@@ -93,8 +90,8 @@ void StAccel_dsh::_PopulateBuffer(char accessor)
 void StAccel_dsh::_CleanBuffers()
 {
     _BufferSize(0);
-    free(m_pcRxBuf);
-    free(m_pcTxBuf);
+    delete[] m_pcRxBuf;
+    delete[] m_pcTxBuf;
 }
 bool StAccel_dsh::_BombsAway()
 {

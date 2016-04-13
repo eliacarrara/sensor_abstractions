@@ -1,6 +1,5 @@
 #include <iostream>
 #include <string>
-#include <malloc.h>
 #include <spibus.h>
 #include <st_accel_dsh.h>
 

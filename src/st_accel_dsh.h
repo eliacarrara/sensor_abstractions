@@ -4,7 +4,6 @@
 #include <accelerometer.h>
 #include <thermometer.h>
 #include <icdevice.h>
-#include <stdlib.h>
 
 #define NUMBER_OF_REGISTERS 31
 #define ACC_SPI_DEV_FILE "/dev/spidev1.0"
