@@ -5,7 +5,7 @@
 #include <thermometer.h>
 #include <icdevice.h>
 
-#define NUMBER_OF_REGISTERS 31
+#define MAG_NR_OF_REGISTERS 31
 #define ACC_SPI_DEV_FILE "/dev/spidev1.0"
 #define ACC_SPI_SPEED 1000000
 
@@ -20,42 +20,42 @@ class StAccel_dsh : public Sensor::Thermometer, public Sensor::Accelerometer, pu
         ~StAccel_dsh();
 
         enum ODR{
-            ODR_OFF         = 0x0,  // PowerDown
-            ODR_SPEED_0     = 0x1,  // 3.125 Hz
-            ODR_SPEED_1     = 0x2,  // 6.25 Hz
-            ODR_SPEED_2     = 0x3,  // 12.5 Hz
-            ODR_SPEED_3     = 0x4,  // 25 Hz
-            ODR_SPEED_4     = 0x5,  // 50 Hz
-            ODR_SPEED_5     = 0x6,  // 100 Hz
-            ODR_SPEED_6     = 0x7,  // 400 Hz
-            ODR_SPEED_7     = 0x8,  // 800 Hz
-            ODR_SPEED_8     = 0x9   // 1600 Hz
+            ODR_OFF         = 0x0,  /// PowerDown
+            ODR_SPEED_0     = 0x1,  /// 3.125 Hz
+            ODR_SPEED_1     = 0x2,  /// 6.25 Hz
+            ODR_SPEED_2     = 0x3,  /// 12.5 Hz
+            ODR_SPEED_3     = 0x4,  /// 25 Hz
+            ODR_SPEED_4     = 0x5,  /// 50 Hz
+            ODR_SPEED_5     = 0x6,  /// 100 Hz
+            ODR_SPEED_6     = 0x7,  /// 400 Hz
+            ODR_SPEED_7     = 0x8,  /// 800 Hz
+            ODR_SPEED_8     = 0x9   /// 1600 Hz
         };
         enum MeasureRange{
-            Range_0 = 0x0,  // ± 2 g
-            Range_1 = 0x1,  // ± 4 g
-            Range_2 = 0x2,  // ± 6 g
-            Range_3 = 0x3,  // ± 8 g
-            Range_4 = 0x4,  // ± 16 g
+            RANGE_0 = 0x0,  /// ± 2 g
+            RANGE_1 = 0x1,  /// ± 4 g
+            RANGE_2 = 0x2,  /// ± 6 g
+            RANGE_3 = 0x3,  /// ± 8 g
+            RANGE_4 = 0x4,  /// ± 16 g
         };
         enum AntiAliasingBandwidth{
-            BW_0 = 0x0, // 800Hz
-            BW_1 = 0x1, // 200Hz
-            BW_2 = 0x2, // 400Hz
-            BW_3 = 0x3 // 50Hz
+            BW_0 = 0x0, /// 800Hz
+            BW_1 = 0x1, /// 200Hz
+            BW_2 = 0x2, /// 400Hz
+            BW_3 = 0x3  /// 50Hz
         };
         enum FifoMode{
-            Bypass = 0x0,
-            StopWhenFull = 0x1,
-            StreamMode = 0x2,
-            StreamThenFifo = 0x3,
-            BypassThenStream = 0x4,
-            BypassThenFifo = 0x7,
+            MODE_BYPASS             = 0x0,  /// Bypass mode. FIFO turned off.
+            MODE_STOP_WHEN_FULL     = 0x1,  /// FIFO mode. Stops collecting data when FIFO is full.
+            MODE_STREAM             = 0x2,  /// Stream mode. If the FIFO is full, the new sample overwrites the older one (circular buffer).
+            MODE_STREAM_THEN_FIFO   = 0x3,  /// Stream mode until trigger is de-asserted, then FIFO mode.
+            MODE_BYPASS_THEN_STREAM = 0x4,  /// Bypass mode until trigger is de-asserted, then Stream mode.
+            MODE_BYPASS_THEN_FIFO   = 0x7,  /// Bypass mode until trigger is de-asserted, then FIFO mode.
         };
         enum SelfTestMode{
-            Off = 0x0, // Normal Mode
-            Positive = 0x1, // Positive sign Mode
-            Negative = 0x2, // Negative sign Mode
+            TEST_OFF        = 0x0, /// Normal Mode
+            TEST_POSITIVE   = 0x1, /// Positive sign Mode
+            TEST_NEGATIVE   = 0x2, /// Negative sign Mode
         };
 
         bool SoftReset();
@@ -120,18 +120,18 @@ class StAccel_dsh : public Sensor::Thermometer, public Sensor::Accelerometer, pu
         bool GetFifoMode(FifoMode & Value);
         bool SetFifoMode(FifoMode Value);
 
-        bool IsWatermarkEnabled(bool & Value);
-        bool UseWatermark(bool Value);
+        bool IsFifoWatermark(bool & Value);
+        bool UseFifoWatermark(bool Value);
 
-        bool GetWatermarkStatus(bool & Value);
+        bool GetFifoWatermarkStatus(bool & Value);
         bool GetFifoFilledLength(char & Value);
 
-        bool GetWatermarkPointer(char & Value);
-        bool SetWatermarkPointer(char Value);
+        bool GetFifoWatermarkPointer(char & Value);
+        bool SetFifoWatermarkPointer(char Value);
 
         //Interrupt stuff
-        bool IsDrdyInt(bool & Value);
-        bool UseDrdyInt(bool Value);
+        bool IsIntDrdy(bool & Value);
+        bool UseIntDrdy(bool Value);
 
         bool GetIntPolarity(LogicState & Value);
         bool SetIntPolarity(LogicState Value);
@@ -144,14 +144,14 @@ class StAccel_dsh : public Sensor::Thermometer, public Sensor::Accelerometer, pu
         bool IsInterrupt2(bool & Value);
         bool UseInterrupt2(bool Value);
 
-        bool IsBootInt(bool & Value);
-        bool UseBootInt(bool Value);
-        bool IsFifoEmptyInt(bool & Value);
-        bool UseFifoEmptyInt(bool Value);
-        bool IsFifoWtmrkInt(bool & Value);
-        bool UseFifoWtmrkInt(bool Value);
-        bool IsFifoOverrunInt(bool & Value);
-        bool UseFifoOverrunInt(bool Value);
+        bool IsIntBoot(bool & Value);
+        bool UseIntBoot(bool Value);
+        bool IsIntFifoEmpty(bool & Value);
+        bool UseIntFifoEmpty(bool Value);
+        bool IsIntFifoWtmrk(bool & Value);
+        bool UseIntFifoWtmrk(bool Value);
+        bool IsIntFifoOverrun(bool & Value);
+        bool UseIntFifoOverrun(bool Value);
 
         // State Machine
 

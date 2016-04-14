@@ -2,9 +2,6 @@
 #include <spibus.h>
 #include <error.h>
 
-#include <iostream>
-using namespace std;
-
 StAccel_dsh::StAccel_dsh()
 {
     Communication::SpiBus * clsBus = new Communication::SpiBus(ACC_SPI_DEV_FILE);
@@ -22,7 +19,7 @@ StAccel_dsh::StAccel_dsh()
     if(mode != SPI_MODE_3 || speed != ACC_SPI_SPEED)
         throw SPI_PARAM_ERROR;
 
-    InitIC(NUMBER_OF_REGISTERS,clsBus);
+    InitIC(MAG_NR_OF_REGISTERS,clsBus);
 
     // When adding new registers, make sure the address is in ascending order
     m_RegOutT = AddRegister(Device::InitRegister(READ_ACCESS, 0x0C, 0x00, 0xFF));
@@ -104,15 +101,15 @@ bool StAccel_dsh::_BombsAway()
 GForce StAccel_dsh::_GetSIRange(StAccel_dsh::MeasureRange range)
 {
     switch (range) {
-    case Range_0:
+    case RANGE_0:
         return 2.0f;
-    case Range_1:
+    case RANGE_1:
         return 4.0f;
-    case Range_2:
+    case RANGE_2:
         return 6.0f;
-    case Range_3:
+    case RANGE_3:
         return 8.0f;
-    case Range_4:
+    case RANGE_4:
         return 16.0f;
     default:
         return 0.0f;
@@ -153,7 +150,6 @@ Device::eReturnCode StAccel_dsh::MultiRead(Device::RegPtr psReg, unsigned int By
 }
 Device::eReturnCode StAccel_dsh::MultiWrite(Device::RegPtr psReg, unsigned int BytesToRead, char * pcTxData)
 {
-#pragma message "I never tested nor used this methond - use with caution"
     // Checks if the access incrementing flag is set
     if (!m_bReadInc)
         return Device::MultiAccessDisabled;
@@ -284,8 +280,11 @@ bool StAccel_dsh::GetODR(StAccel_dsh::ODR & Value)
 bool StAccel_dsh::SetODR(StAccel_dsh::ODR Value)
 {
     char out;
+    if(Value > ODR_SPEED_8)
+        return false;
+
     Device::eReturnCode code = Read(m_RegCtrlReg4, out);
-    if ( code != Device::OK)
+    if (code != Device::OK)
         return false;
 
     out = ((out & 0x0F) | ((char)Value << 4));
@@ -306,6 +305,9 @@ bool StAccel_dsh::GetRange(StAccel_dsh::MeasureRange & Value)
 bool StAccel_dsh::SetRange(StAccel_dsh::MeasureRange Value)
 {
     char out;
+    if(Value > RANGE_4)
+        return false;
+
     Device::eReturnCode code = Read(m_RegCtrlReg5,out);
     if ( code != Device::OK)
         return false;
@@ -361,7 +363,7 @@ bool StAccel_dsh::IsFifoOverrun(bool & Value)
     return (code == Device::OK);
 }
 
-bool StAccel_dsh::IsDrdyInt(bool & Value)
+bool StAccel_dsh::IsIntDrdy(bool & Value)
 {
     char out;
     Device::eReturnCode code = Read(m_RegCtrlReg3, out);
@@ -369,7 +371,7 @@ bool StAccel_dsh::IsDrdyInt(bool & Value)
     Value = ((out & 0x80) == 0x80);
     return (code == Device::OK);
 }
-bool StAccel_dsh::UseDrdyInt(bool Value)
+bool StAccel_dsh::UseIntDrdy(bool Value)
 {
     char out;
     Device::eReturnCode code = Read(m_RegCtrlReg3,out);
@@ -395,7 +397,7 @@ bool StAccel_dsh::GetIntPolarity(LogicState & Value)
 }
 bool StAccel_dsh::SetIntPolarity(LogicState Value)
 {
-    char out;
+    char out;    
     Device::eReturnCode code = Read(m_RegCtrlReg3,out);
     if ( code != Device::OK)
         return false;
@@ -485,7 +487,7 @@ bool StAccel_dsh::UseInterrupt2(bool Value)
     return (code == Device::OK);
 }
 
-bool StAccel_dsh::IsBootInt(bool & Value)
+bool StAccel_dsh::IsIntBoot(bool & Value)
 {
     char out;
     Device::eReturnCode code = Read(m_RegCtrlReg6, out);
@@ -493,7 +495,7 @@ bool StAccel_dsh::IsBootInt(bool & Value)
     Value = ((out & 0x01) == 0x01);
     return (code == Device::OK);
 }
-bool StAccel_dsh::UseBootInt(bool Value)
+bool StAccel_dsh::UseIntBoot(bool Value)
 {
     char out;
     Device::eReturnCode code = Read(m_RegCtrlReg6,out);
@@ -508,7 +510,7 @@ bool StAccel_dsh::UseBootInt(bool Value)
     code = Write(m_RegCtrlReg6, out);
     return (code == Device::OK);
 }
-bool StAccel_dsh::IsFifoEmptyInt(bool & Value)
+bool StAccel_dsh::IsIntFifoEmpty(bool & Value)
 {
     char out;
     Device::eReturnCode code = Read(m_RegCtrlReg6, out);
@@ -516,7 +518,7 @@ bool StAccel_dsh::IsFifoEmptyInt(bool & Value)
     Value = ((out & 0x08) == 0x08);
     return (code == Device::OK);
 }
-bool StAccel_dsh::UseFifoEmptyInt(bool Value)
+bool StAccel_dsh::UseIntFifoEmpty(bool Value)
 {
     char out;
     Device::eReturnCode code = Read(m_RegCtrlReg6,out);
@@ -531,7 +533,7 @@ bool StAccel_dsh::UseFifoEmptyInt(bool Value)
     code = Write(m_RegCtrlReg6, out);
     return (code == Device::OK);
 }
-bool StAccel_dsh::IsFifoWtmrkInt(bool & Value)
+bool StAccel_dsh::IsIntFifoWtmrk(bool & Value)
 {
     char out;
     Device::eReturnCode code = Read(m_RegCtrlReg6, out);
@@ -539,7 +541,7 @@ bool StAccel_dsh::IsFifoWtmrkInt(bool & Value)
     Value = ((out & 0x04) == 0x04);
     return (code == Device::OK);
 }
-bool StAccel_dsh::UseFifoWtmrkInt(bool Value)
+bool StAccel_dsh::UseIntFifoWtmrk(bool Value)
 {
     char out;
     Device::eReturnCode code = Read(m_RegCtrlReg6,out);
@@ -554,7 +556,7 @@ bool StAccel_dsh::UseFifoWtmrkInt(bool Value)
     code = Write(m_RegCtrlReg6, out);
     return (code == Device::OK);
 }
-bool StAccel_dsh::IsFifoOverrunInt(bool & Value)
+bool StAccel_dsh::IsIntFifoOverrun(bool & Value)
 {
     char out;
     Device::eReturnCode code = Read(m_RegCtrlReg6, out);
@@ -562,7 +564,7 @@ bool StAccel_dsh::IsFifoOverrunInt(bool & Value)
     Value = ((out & 0x02) == 0x02);
     return (code == Device::OK);
 }
-bool StAccel_dsh::UseFifoOverrunInt(bool Value)
+bool StAccel_dsh::UseIntFifoOverrun(bool Value)
 {
     char out;
     Device::eReturnCode code = Read(m_RegCtrlReg6,out);
@@ -626,6 +628,9 @@ bool StAccel_dsh::GetFifoMode(FifoMode & Value)
 bool StAccel_dsh::SetFifoMode(FifoMode Value)
 {
     char out;
+    if(Value > MODE_BYPASS_THEN_FIFO)
+        return false;
+
     Device::eReturnCode code = Read(m_RegFifoCtrl,out);
     if ( code != Device::OK)
         return false;
@@ -670,6 +675,9 @@ bool StAccel_dsh::GetAntiAliasFilterBandwidth(AntiAliasingBandwidth & Value)
 bool StAccel_dsh::SetAntiAliasFilterBandwidth(AntiAliasingBandwidth Value)
 {
     char out;
+    if(Value > BW_3)
+        return false;
+
     Device::eReturnCode code = Read(m_RegCtrlReg5,out);
     if ( code != Device::OK)
         return false;
@@ -679,7 +687,7 @@ bool StAccel_dsh::SetAntiAliasFilterBandwidth(AntiAliasingBandwidth Value)
     return (code == Device::OK);
 }
 
-bool StAccel_dsh::IsWatermarkEnabled(bool & Value)
+bool StAccel_dsh::IsFifoWatermark(bool & Value)
 {
     char out;
     Device::eReturnCode code = Read(m_RegCtrlReg6,out);
@@ -687,7 +695,7 @@ bool StAccel_dsh::IsWatermarkEnabled(bool & Value)
     Value = ((out & 0x20) == 0x20);
     return (code == Device::OK);
 }
-bool StAccel_dsh::UseWatermark(bool Value)
+bool StAccel_dsh::UseFifoWatermark(bool Value)
 {
     char out;
     Device::eReturnCode code = Read(m_RegCtrlReg6,out);
@@ -710,7 +718,7 @@ bool StAccel_dsh::GetFifoFilledLength(char & Value)
     Value = (out & 0x1F);
     return (code == Device::OK);
 }
-bool StAccel_dsh::GetWatermarkStatus(bool & Value)
+bool StAccel_dsh::GetFifoWatermarkStatus(bool & Value)
 {
     char out;
     Device::eReturnCode code = Read(m_RegFifoSrc, out);
@@ -718,7 +726,7 @@ bool StAccel_dsh::GetWatermarkStatus(bool & Value)
     Value = ((out & 0x80) == 0x80);
     return (code == Device::OK);
 }
-bool StAccel_dsh::GetWatermarkPointer(char & Value)
+bool StAccel_dsh::GetFifoWatermarkPointer(char & Value)
 {
     char out;
     Device::eReturnCode code = Read(m_RegFifoCtrl, out);
@@ -726,7 +734,7 @@ bool StAccel_dsh::GetWatermarkPointer(char & Value)
     Value = (out & 0x1F);
     return (code == Device::OK);
 }
-bool StAccel_dsh::SetWatermarkPointer(char Value)
+bool StAccel_dsh::SetFifoWatermarkPointer(char Value)
 {
     char out;
     Device::eReturnCode code = Read(m_RegFifoCtrl,out);
@@ -749,6 +757,9 @@ bool StAccel_dsh::GetSelfTestMode(SelfTestMode & Value)
 bool StAccel_dsh::SetSelfTestMode(SelfTestMode Value)
 {
     char out;
+    if(Value > TEST_NEGATIVE)
+        return false;
+
     Device::eReturnCode code = Read(m_RegCtrlReg5,out);
     if ( code != Device::OK)
         return false;
@@ -955,7 +966,6 @@ bool StAccel_dsh::ReadSensorDataOnce(Sensor::RawThermometerData & OutData)
 }
 bool StAccel_dsh::ReadSensorDataOnce(Sensor::RawAcceleromterData & OutData)
 {
-#pragma message "test this"
     char out[6]= {0,0,0,0,0,0};
     char code = Device::OK;
 
