@@ -2,6 +2,9 @@
 #include <spibus.h>
 #include <error.h>
 
+#include <iostream>
+using namespace std;
+
 StAccel_dsh::StAccel_dsh()
 {
     Communication::SpiBus * clsBus = new Communication::SpiBus(ACC_SPI_DEV_FILE);
@@ -627,7 +630,7 @@ bool StAccel_dsh::SetFifoMode(FifoMode Value)
     if ( code != Device::OK)
         return false;
 
-    out |= (0xE0 & ((char)Value << 5));
+    out = (out & 0x1F) | (0xE0 & ((char)Value << 5));
     code = Write(m_RegFifoCtrl, out);
     return (code == Device::OK);
 }
@@ -671,7 +674,7 @@ bool StAccel_dsh::SetAntiAliasFilterBandwidth(AntiAliasingBandwidth Value)
     if ( code != Device::OK)
         return false;
 
-    out |= (0xC0 & ((char)Value << 6));
+    out = (out & 0x3F) | (0xC0 & ((char)Value << 6));
     code = Write(m_RegCtrlReg5, out);
     return (code == Device::OK);
 }
@@ -730,7 +733,7 @@ bool StAccel_dsh::SetWatermarkPointer(char Value)
     if ( code != Device::OK)
         return false;
 
-    out |= (0x1F & Value);
+    out = (out & 0xE0) | (0x1F & Value);
     code = Write(m_RegFifoCtrl, out);
     return (code == Device::OK);
 }
@@ -750,7 +753,7 @@ bool StAccel_dsh::SetSelfTestMode(SelfTestMode Value)
     if ( code != Device::OK)
         return false;
 
-    out |= (0x06 & ((char)Value << 1));
+    out = (out & 0xF9) | (0x06 & ((char)Value << 1));
     code = Write(m_RegCtrlReg5, out);
     return (code == Device::OK);
 }
@@ -981,7 +984,7 @@ Celcius StAccel_dsh::ConvertToSIUnit(Sensor::RawThermometerData Data)
 }
 GForce * StAccel_dsh::ConvertToSIUnit(Sensor::RawAcceleromterData Data)
 {
-    GForce * out= (GForce*)calloc(3,sizeof(GForce));
+    GForce * out= new GForce[3];
     float range = _GetSIRange(m_eRange);
 
     out[0] = ((float)Data.nX_Data / (float)0x80000000) * range;
