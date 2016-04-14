@@ -2,6 +2,7 @@
 #include <string>
 #include <spibus.h>
 #include <st_accel_dsh.h>
+#include <unistd.h>
 
 using namespace std;
 
@@ -259,7 +260,7 @@ int AccelerometerTest(){
             cout << "\t" << (val?"Yes":"No") << endl;
             cout << (rtrn ? "o " : "x " );
         }
-        else if(cmd.substr(0,6) == "UseFifo" || cmd.substr(0,6) == "usefifo"){
+        else if(cmd.substr(0,7) == "UseFifo" || cmd.substr(0,7) == "usefifo"){
             char val;
 
             try {
@@ -271,13 +272,13 @@ int AccelerometerTest(){
 
             cout << (accel->UseFifo((val==0?false:true)) ? "o " : "x " );
         }
-        else if(cmd.substr(0,6) == "IsFifoEmpty" || cmd.substr(0,6) == "isfifoempty"){
+        else if(cmd.substr(0,11) == "IsFifoEmpty" || cmd.substr(0,11) == "isfifoempty"){
             bool val;
             bool rtrn = accel->IsFifoEmpty(val);
             cout << "\t" << (val?"Yes":"No") << endl;
             cout << (rtrn ? "o " : "x " );
         }
-        else if(cmd.substr(0,6) == "IsFifoOverrun" || cmd.substr(0,6) == "isfifooverrun"){
+        else if(cmd.substr(0,13) == "IsFifoOverrun" || cmd.substr(0,13) == "isfifooverrun"){
             bool val;
             bool rtrn = accel->IsFifoOverrun(val);
             cout << "\t" << (val?"Yes":"No") << endl;
@@ -518,11 +519,12 @@ int AccelerometerTest(){
             cout << (rtrn ? "o " : "x " );
         }
         else if(cmd.substr(0,11) == "SetFifoMode" || cmd.substr(0,11) == "setfifomode"){
-            char val;
+            StAccel_dsh::FifoMode val;
 
             try {
-                val = (char)stoul(cmd.erase(0,12), NULL);
+                val = (StAccel_dsh::FifoMode)stoul(cmd.erase(0,12), NULL);
             } catch (...) {
+                cout << "exception" << endl;
                 cout << "x ";
                 continue;
             }
@@ -531,7 +533,7 @@ int AccelerometerTest(){
         }
         else if(cmd.substr(0,18) == "IsWatermarkEnabled" || cmd.substr(0,18) == "iswatermarkenabled"){
             bool val;
-            bool rtrn = accel->IsWatermarkEnabled(val);
+            bool rtrn = accel->IsFifoWatermark(val);
             cout << "\t" << (val?"Yes":"No") << endl;
             cout << (rtrn ? "o " : "x " );
         }
@@ -545,11 +547,11 @@ int AccelerometerTest(){
                 continue;
             }
 
-            cout << (accel->UseWatermark((val==0?false:true)) ? "o " : "x " );
+            cout << (accel->UseFifoWatermark((val==0?false:true)) ? "o " : "x " );
         }
         else if(cmd.substr(0,18) == "GetWatermarkStatus" || cmd.substr(0,18) == "getwatermarkstatus"){
             bool val;
-            bool rtrn = accel->GetWatermarkStatus(val);
+            bool rtrn = accel->GetFifoWatermarkStatus(val);
             cout << "\t" << (val?"Higher or equal":"Lower") << endl;
             cout << (rtrn ? "o " : "x " );
         }
@@ -561,7 +563,7 @@ int AccelerometerTest(){
         }
         else if(cmd.substr(0,19) == "GetWatermarkPointer" || cmd.substr(0,19) == "getwatermarkpointer"){
             char val;
-            bool rtrn = accel->GetWatermarkPointer(val);
+            bool rtrn = accel->GetFifoWatermarkPointer(val);
             cout << "\t" << (unsigned int)val << endl;
             cout << (rtrn ? "o " : "x " );
         }
@@ -575,15 +577,15 @@ int AccelerometerTest(){
                 continue;
             }
 
-            cout << (accel->SetWatermarkPointer((char)val) ? "o " : "x " );
+            cout << (accel->SetFifoWatermarkPointer((char)val) ? "o " : "x " );
         }
-        else if(cmd.substr(0,9) == "IsDrdyInt" || cmd.substr(0,9) == "isdrdyint"){
+        else if(cmd.substr(0,9) == "IsIntDrdy" || cmd.substr(0,9) == "isintdrdy"){
             bool val;
-            bool rtrn = accel->IsDrdyInt(val);
+            bool rtrn = accel->IsIntDrdy(val);
             cout << "\t" << (val?"Yes":"No") << endl;
             cout << (rtrn ? "o " : "x " );
         }
-        else if(cmd.substr(0,10) == "UseDrdyInt" || cmd.substr(0,10) == "usedrdyint"){
+        else if(cmd.substr(0,10) == "UseIntDrdy" || cmd.substr(0,10) == "useintdrdy"){
             char val;
 
             try {
@@ -593,7 +595,7 @@ int AccelerometerTest(){
                 continue;
             }
 
-            cout << (accel->UseDrdyInt((val==0?false:true)) ? "o " : "x " );
+            cout << (accel->UseIntDrdy((val==0?false:true)) ? "o " : "x " );
         }
         else if(cmd.substr(0,14) == "GetIntPolarity" || cmd.substr(0,14) == "getintpolarity"){
             LogicState val;
@@ -667,13 +669,13 @@ int AccelerometerTest(){
 
             cout << (accel->UseInterrupt2((val==0?false:true)) ? "o " : "x " );
         }
-        else if(cmd.substr(0,9) == "IsBootInt" || cmd.substr(0,9) == "isbootint"){
+        else if(cmd.substr(0,9) == "IsIntBoot" || cmd.substr(0,9) == "isintboot"){
             bool val;
-            bool rtrn = accel->IsBootInt(val);
+            bool rtrn = accel->IsIntBoot(val);
             cout << "\t" << (val?"Yes":"No") << endl;
             cout << (rtrn ? "o " : "x " );
         }
-        else if(cmd.substr(0,10) == "UseBootInt" || cmd.substr(0,10) == "usebootint"){
+        else if(cmd.substr(0,10) == "UseIntBoot" || cmd.substr(0,10) == "useintboot"){
             char val;
 
             try {
@@ -683,15 +685,34 @@ int AccelerometerTest(){
                 continue;
             }
 
-            cout << (accel->UseBootInt((val==0?false:true)) ? "o " : "x " );
+            cout << (accel->UseIntBoot((val==0?false:true)) ? "o " : "x " );
         }
-        else if(cmd.substr(0,14) == "IsFifoEmptyInt" || cmd.substr(0,14) == "isfifoemptyint"){
+        else if(cmd.substr(0,14) == "IsIntFifoEmpty" || cmd.substr(0,14) == "isintfifoempty"){
             bool val;
-            bool rtrn = accel->IsFifoEmptyInt(val);
+            bool rtrn = accel->IsIntFifoEmpty(val);
             cout << "\t" << (val?"Yes":"No") << endl;
             cout << (rtrn ? "o " : "x " );
         }
-        else if(cmd.substr(0,15) == "UseFifoEmptyInt" || cmd.substr(0,15) == "usefifoemptyint"){
+        else if(cmd.substr(0,15) == "UseIntFifoEmpty" || cmd.substr(0,15) == "useintfifoempty"){
+            char val;
+
+            try {
+                val = (char)stoul(cmd.erase(0,16), NULL);
+            } catch (...) {
+                cout << "exception";
+                cout << "x ";
+                continue;
+            }
+
+            cout << (accel->UseIntFifoEmpty((val==0?false:true)) ? "o " : "x " );
+        }
+        else if(cmd.substr(0,14) == "IsIntFifoWtmrk" || cmd.substr(0,14) == "isintfifowtmrk"){
+            bool val;
+            bool rtrn = accel->IsIntFifoWtmrk(val);
+            cout << "\t" << (val?"Yes":"No") << endl;
+            cout << (rtrn ? "o " : "x " );
+        }
+        else if(cmd.substr(0,15) == "UseIntFifoWtmrk" || cmd.substr(0,15) == "useintfifowtmrk"){
             char val;
 
             try {
@@ -701,43 +722,44 @@ int AccelerometerTest(){
                 continue;
             }
 
-            cout << (accel->UseFifoEmptyInt((val==0?false:true)) ? "o " : "x " );
+            cout << (accel->UseIntFifoWtmrk((val==0?false:true)) ? "o " : "x " );
         }
-        else if(cmd.substr(0,14) == "IsFifoWtmrkInt" || cmd.substr(0,14) == "isfifowtmrkint"){
+        else if(cmd.substr(0,16) == "IsIntFifoOverrun" || cmd.substr(0,16) == "isintfifooverrun"){
             bool val;
-            bool rtrn = accel->IsFifoWtmrkInt(val);
+            bool rtrn = accel->IsIntFifoOverrun(val);
             cout << "\t" << (val?"Yes":"No") << endl;
             cout << (rtrn ? "o " : "x " );
         }
-        else if(cmd.substr(0,15) == "UseFifoWtmrkInt" || cmd.substr(0,15) == "usefifowtmrkint"){
-            char val;
-
-            try {
-                val = (char)stoul(cmd.erase(0,16), NULL);
-            } catch (...) {
-                cout << "x ";
-                continue;
-            }
-
-            cout << (accel->UseFifoWtmrkInt((val==0?false:true)) ? "o " : "x " );
-        }
-        else if(cmd.substr(0,16) == "IsFifoOverrunInt" || cmd.substr(0,16) == "isfifooverrunint"){
-            bool val;
-            bool rtrn = accel->IsFifoOverrunInt(val);
-            cout << "\t" << (val?"Yes":"No") << endl;
-            cout << (rtrn ? "o " : "x " );
-        }
-        else if(cmd.substr(0,17) == "UseFifoOverrunInt" || cmd.substr(0,17) == "usefifooverrunint"){
+        else if(cmd.substr(0,17) == "UseIntFifoOverrun" || cmd.substr(0,17) == "useintfifooverrun"){
             char val;
 
             try {
                 val = (char)stoul(cmd.erase(0,18), NULL);
             } catch (...) {
+
                 cout << "x ";
                 continue;
             }
 
-            cout << (accel->UseFifoWtmrkInt((val==0?false:true)) ? "o " : "x " );
+
+            cout << (accel->UseIntFifoOverrun((val==0?false:true)) ? "o " : "x " );
+        }
+        else if(cmd.substr(0,17) == "Loop" || cmd.substr(0,17) == "loop"){
+            Sensor::RawAcceleromterData val;
+            for (int i = 0; i < 1000; ++i) {
+                if (!accel->ReadSensorDataOnce(val)){
+                    cout << "x ";
+                    continue;
+                }
+                GForce * out = accel->ConvertToSIUnit(val);
+                cout << "\t" << "X: " << out[0] << " g";
+                cout << "\t" << "Y: "<< out[1] << " g";
+                cout << "\t" << "Z: "<< out[2] << " g" << endl;
+                delete[] out;
+                usleep(5000);
+            }
+
+            cout << "o ";
         }
         else
             cout << "invalid command" << endl;
