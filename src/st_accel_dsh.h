@@ -36,7 +36,7 @@ class StAccel_dsh : public Sensor::Thermometer, public Sensor::Accelerometer, pu
             RANGE_1 = 0x1,  /// ± 4 g
             RANGE_2 = 0x2,  /// ± 6 g
             RANGE_3 = 0x3,  /// ± 8 g
-            RANGE_4 = 0x4,  /// ± 16 g
+            RANGE_4 = 0x4   /// ± 16 g
         };
         enum AntiAliasingBandwidth{
             BW_0 = 0x0, /// 800Hz
@@ -50,12 +50,12 @@ class StAccel_dsh : public Sensor::Thermometer, public Sensor::Accelerometer, pu
             MODE_STREAM             = 0x2,  /// Stream mode. If the FIFO is full, the new sample overwrites the older one (circular buffer).
             MODE_STREAM_THEN_FIFO   = 0x3,  /// Stream mode until trigger is de-asserted, then FIFO mode.
             MODE_BYPASS_THEN_STREAM = 0x4,  /// Bypass mode until trigger is de-asserted, then Stream mode.
-            MODE_BYPASS_THEN_FIFO   = 0x7,  /// Bypass mode until trigger is de-asserted, then FIFO mode.
+            MODE_BYPASS_THEN_FIFO   = 0x7   /// Bypass mode until trigger is de-asserted, then FIFO mode.
         };
         enum SelfTestMode{
             TEST_OFF        = 0x0, /// Normal Mode
             TEST_POSITIVE   = 0x1, /// Positive sign Mode
-            TEST_NEGATIVE   = 0x2, /// Negative sign Mode
+            TEST_NEGATIVE   = 0x2  /// Negative sign Mode
         };
 
         bool SoftReset();
