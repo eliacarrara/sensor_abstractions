@@ -3,8 +3,21 @@
 #include <spibus.h>
 #include <st_accel_dsh.h>
 #include <unistd.h>
+#include <csignal>
 
 using namespace std;
+
+static bool loop = false;
+
+void signal_handler(int signal)
+{
+    if (signal == SIGINT && loop)
+        loop = false;
+    else{
+        cout << "death by signal..." << endl;
+        exit(1);
+    }
+}
 
 bool SpiGetCmd(Communication::SpiBus & spibus, string arg){
 
@@ -746,7 +759,8 @@ int AccelerometerTest(){
         }
         else if(cmd.substr(0,17) == "Loop" || cmd.substr(0,17) == "loop"){
             Sensor::RawAcceleromterData val;
-            for (int i = 0; i < 1000; ++i) {
+            loop = true;
+            while (loop) {
                 if (!accel->ReadSensorDataOnce(val)){
                     cout << "x ";
                     continue;
@@ -770,6 +784,8 @@ int AccelerometerTest(){
 }
 
 int main(){
+    std::signal(SIGINT, signal_handler);
+
     int selection;
     cout << "---Skywalker Prototype---" << endl;
     cout << "Select what to test:" << endl;
@@ -777,6 +793,8 @@ int main(){
     cout << "\t[1] test ST LIS3DSH (Accelerometer)" << endl;
     cout << "> ";
     cin >> selection;
+
+
 
     switch (selection) {
     case 0:
