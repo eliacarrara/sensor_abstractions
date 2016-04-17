@@ -6,6 +6,7 @@
 #include <csignal>
 
 using namespace std;
+using namespace Sensor;
 
 static bool loop = false;
 
@@ -758,7 +759,7 @@ int AccelerometerTest(){
             cout << (accel->UseIntFifoOverrun((val==0?false:true)) ? "o " : "x " );
         }
         else if(cmd.substr(0,17) == "Loop" || cmd.substr(0,17) == "loop"){
-            Sensor::RawAcceleromterData val;
+            RawAcceleromterData val;
             loop = true;
             while (loop) {
                 if (!accel->ReadSensorDataOnce(val)){
