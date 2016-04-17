@@ -14,6 +14,8 @@
 #define ACC_SPI_MSG(REG_ID, FLAG) ((REG_ID & 0x7F) | FLAG)
 #define ACC_SPI_DEFAULT_BUFF_LEN 2
 
+namespace Sensor{
+
 class StAccel_dsh : public Sensor::Thermometer, public Sensor::Accelerometer, public Device::ICDevice {
     public:
         StAccel_dsh();
@@ -189,5 +191,7 @@ private:
         inline bool _BombsAway();
         inline GForce _GetSIRange(MeasureRange range);
 };
+
+}
 
 #endif

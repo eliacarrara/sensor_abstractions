@@ -1,6 +1,8 @@
-#include "st_accel_dsh.h"
+#include <st_accel_dsh.h>
 #include <spibus.h>
 #include <error.h>
+
+namespace Sensor{
 
 StAccel_dsh::StAccel_dsh()
 {
@@ -1001,4 +1003,6 @@ GForce * StAccel_dsh::ConvertToSIUnit(Sensor::RawAcceleromterData Data)
     out[1] = ((float)Data.nY_Data / (float)0x80000000) * range;
     out[2] = ((float)Data.nZ_Data / (float)0x80000000) * range;
     return out;
+}
+
 }
