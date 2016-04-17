@@ -31,5 +31,6 @@ add_executable(skywalker_prototype
                         magnetometer.h
                         st_accel_dsh.h st_accel_dsh.cpp
                         st_magno_mdl.h st_magno_mdl.cpp
+                        st_gyro_20h.h st_gyro_20h.cpp
                         error.h
                         types.h)
