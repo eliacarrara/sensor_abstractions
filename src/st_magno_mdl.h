@@ -13,6 +13,7 @@
 #define MAG_SPI_WRITE_FLAG 0x00
 #define MAG_SPI_ACCES_INC_FLAG 0x40
 
+namespace Sensor{
 
 class StMagno_mdl : public Sensor::Thermometer, public Sensor::Magnetometer, public Device::ICDevice {
     public:
@@ -152,8 +153,10 @@ class StMagno_mdl : public Sensor::Thermometer, public Sensor::Magnetometer, pub
 
         Device::eReturnCode MultiRead(Device::RegPtr psReg, unsigned int BytesToRead, char * pcRxData);
         Device::eReturnCode MultiWrite(Device::RegPtr psReg, unsigned int BytesToRead, char * pcTxData);
-        Device::eReturnCode Read(Device::RegPtr psReg, char &cValue);
-        Device::eReturnCode Write(Device::RegPtr psReg, char &cValue);
+        Device::eReturnCode Read(Device::RegPtr psReg, char & cValue);
+        Device::eReturnCode Write(Device::RegPtr psReg, char & cValue);
 };
+
+}
 
 #endif
