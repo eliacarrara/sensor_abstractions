@@ -7,17 +7,6 @@ set(CMAKE_INCLUDE_PATH ${CMAKE_INCLUDE_PATH})
 set(LIBRARY_OUTPUT_PATH ../bin)
 set(EXECUTABLE_OUTPUT_PATH ../bin)
 
-# cross comipile stuff for beaglebone black
-SET(CMAKE_SYSTEM_NAME Linux)
-SET(CMAKE_C_COMPILER /usr/bin/arm-linux-gnueabi-gcc)
-SET(CMAKE_CXX_COMPILER /usr/bin/arm-linux-gnueabi-g++)
-SET(CMAKE_FIND_ROOT_PATH /usr/arm-linux-gnueabi)
-SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=armv7-a -mthumb-interwork -mfloat-abi=softfp -mfpu=neon -mtune=cortex-a8 --static")
-SET(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER)
-SET(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY)
-SET(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
-
-
 # Building the binaries
 add_executable(skywalker_prototype
                         launch.cpp
@@ -29,8 +18,9 @@ add_executable(skywalker_prototype
                         thermometer.h
                         gyroscope.h
                         magnetometer.h
+                        st_sensor.h st_sensor.cpp
                         st_accel_dsh.h st_accel_dsh.cpp
-                        st_magno_mdl.h st_magno_mdl.cpp
-                        st_gyro_20h.h st_gyro_20h.cpp
+                        #st_magno_mdl.h st_magno_mdl.cpp
+                        #st_gyro_20h.h st_gyro_20h.cpp
                         error.h
                         types.h)
