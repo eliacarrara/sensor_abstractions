@@ -34,7 +34,7 @@ bool SpiBus::Close(){
         return false;
 }
 
-bool SpiBus::Transact(const char *pcReadBuffer, const char *pcWriteBuffer, unsigned int nLength)
+bool SpiBus::Transact(Word * pcReadBuffer, const Word * pcWriteBuffer, Size nLength)
 {
     if(pcWriteBuffer == NULL || pcReadBuffer == NULL)
         return false;
@@ -80,7 +80,7 @@ bool SpiBus::GetEndianness(Endianess &eEndianess)
     if (!IsOpen())
         return false;
 
-    char endian;
+    Word endian;
     bool rtrn = ioctl(m_nFd, SPI_IOC_RD_LSB_FIRST, &endian) >= 0;
     eEndianess = (Endianess)endian;
     return rtrn;

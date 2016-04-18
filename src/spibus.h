@@ -18,7 +18,7 @@
 
 namespace Communication{
 
-typedef unsigned char spi_mode;
+typedef Word spi_mode;
 inline const char * GetSpiModeDescription(spi_mode ucMode){
 #define TXT_CPHA_0 "Sampling occures on the leading phase of the clock signal."
 #define TXT_CPHA_1 "Sampling occures on the trailing phase of the clock signal."
@@ -57,7 +57,7 @@ public:
     bool Open();
     bool Close();
 
-    bool Transact(const char * pcReadBuffer, const char * pcWriteBuffer, unsigned int nLength);
+    bool Transact(Word * pcReadBuffer, const Word * pcWriteBuffer, Size nLength);
 
     bool GetMode(spi_mode & ucMode);
     bool GetBitsPerWord(BitsPerWord & ucBPW);
