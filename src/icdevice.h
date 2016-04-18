@@ -10,6 +10,7 @@
 #define ICDEVICE_H
 
 #include <bus.h>
+#include <types.h>
 
 #define READ_ACCESS 0x1
 #define WRITE_ACCESS 0x2
@@ -20,13 +21,13 @@
 namespace Device {
 
 struct sRegister{
-	char cAccess;
-	char cAddress;
-    char cDefault;
-    char cLockedBits;
+    Word cAccess;
+    Word cAddress;
+    Word cDefault;
+    Word cLockedBits;
 };
 
-inline sRegister InitRegister(char AccessLevel, char Address, char Default, char LockedBits){
+inline sRegister InitRegister(Word AccessLevel, Word Address, Word Default, Word LockedBits){
     sRegister reg;
     reg.cAccess = AccessLevel;
     reg.cAddress = Address;
@@ -49,8 +50,8 @@ typedef sRegister * RegPtr;
 
 class ICDevice{
     sRegister * m_psAllRegisters = 0;
-    unsigned int m_unLenRegisters;
-    unsigned int m_unCounter;
+    Size m_unLenRegisters;
+    Size m_unCounter;
 protected:
     ICDevice();
     ~ICDevice();
@@ -58,13 +59,13 @@ protected:
     Communication::Bus * m_clsBus = 0;
     RegPtr AddRegister(sRegister Reg);
 
-    virtual eReturnCode Read(RegPtr psReg, char & cValue)=0;
-    virtual eReturnCode Write(RegPtr psReg, char & cValue)=0;
+    virtual eReturnCode Read(RegPtr psReg, Word & cValue)=0;
+    virtual eReturnCode Write(RegPtr psReg, Word & cValue)=0;
 
-    bool CheckRegisterAccess(RegPtr psReg, char ActionCode);
-    bool CheckLockedBits(RegPtr psReg, char & tx_out);
+    bool CheckRegisterAccess(RegPtr psReg, Word ActionCode);
+    bool CheckLockedBits(RegPtr psReg, Word & tx_out);
 
-    void InitIC(unsigned int NumberOfRegs, Communication::Bus * clsBus);
+    void InitIC(Size NumberOfRegs, Communication::Bus * clsBus);
 
 };
 

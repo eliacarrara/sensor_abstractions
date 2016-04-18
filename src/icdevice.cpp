@@ -8,14 +8,14 @@ RegPtr ICDevice::AddRegister(sRegister Reg)
     return &(m_psAllRegisters[m_unCounter++]);
 }
 
-void ICDevice::InitIC(unsigned int NumberOfRegs, Communication::Bus * clsBus)
+void ICDevice::InitIC(Size NumberOfRegs, Communication::Bus * clsBus)
 {
     m_psAllRegisters = new sRegister[NumberOfRegs];
     m_unLenRegisters = NumberOfRegs;
     m_clsBus = clsBus;
 }
 
-bool ICDevice::CheckRegisterAccess(RegPtr psReg, char ActionCode)
+bool ICDevice::CheckRegisterAccess(RegPtr psReg, Word ActionCode)
 {
     if(ActionCode == READ_ACCESS)
         return (psReg->cAccess & READ_ACCESS);
@@ -25,7 +25,7 @@ bool ICDevice::CheckRegisterAccess(RegPtr psReg, char ActionCode)
         return false;
 }
 
-bool ICDevice::CheckLockedBits(RegPtr psReg, char & tx_out)
+bool ICDevice::CheckLockedBits(RegPtr psReg, Word & tx_out)
 {
     return (((psReg->cDefault & psReg->cLockedBits) | (~psReg->cLockedBits & tx_out)) == tx_out);
 }
