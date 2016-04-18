@@ -28,19 +28,19 @@ StMagno_mdl::~StMagno_mdl()
 
 }
 
-Device::eReturnCode StMagno_mdl::MultiRead(Device::RegPtr psReg, unsigned int BytesToRead, char * pcRxData)
+Device::eReturnCode StMagno_mdl::MultiRead(Device::RegPtr psReg, Size BytesToRead, Word * pcRxData)
 {
 
 }
-Device::eReturnCode StMagno_mdl::MultiWrite(Device::RegPtr psReg, unsigned int BytesToRead, char * pcTxData)
+Device::eReturnCode StMagno_mdl::MultiWrite(Device::RegPtr psReg, Size BytesToRead, Word * pcTxData)
 {
 
 }
-Device::eReturnCode StMagno_mdl::Read(Device::RegPtr psReg, char & cValue)
+Device::eReturnCode StMagno_mdl::Read(Device::RegPtr psReg, Word & cValue)
 {
 
 }
-Device::eReturnCode StMagno_mdl::Write(Device::RegPtr psReg, char & cValue)
+Device::eReturnCode StMagno_mdl::Write(Device::RegPtr psReg, Word & cValue)
 {
 
 }
@@ -54,7 +54,7 @@ bool StMagno_mdl::SoftReset()
 
 }
 
-bool StMagno_mdl::WhoAmI(char & Value)
+bool StMagno_mdl::WhoAmI(Word & Value)
 {
 
 }

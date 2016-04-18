@@ -3,7 +3,7 @@
 
 #include <magnetometer.h>
 #include <thermometer.h>
-#include <icdevice.h>
+#include <st_sensor.h>
 
 #define MAG_NR_OF_REGISTERS 19
 #define MAG_SPI_DEV_FILE "/dev/spidev1.0"
@@ -15,7 +15,7 @@
 
 namespace Sensor{
 
-class StMagno_mdl : public Sensor::Thermometer, public Sensor::Magnetometer, public Device::ICDevice {
+class StMagno_mdl : public Sensor::Thermometer, public Sensor::Magnetometer, public StSensorConfig {
     public:
         StMagno_mdl();
         ~StMagno_mdl();
@@ -57,7 +57,7 @@ class StMagno_mdl : public Sensor::Thermometer, public Sensor::Magnetometer, pub
         bool SoftReset();
 
         // IC Identification
-        bool WhoAmI(char & Value);
+        bool WhoAmI(Word & Value);
 
         // Operation Configutation
         bool IsEnabledTemp(bool & Value);
@@ -151,10 +151,10 @@ class StMagno_mdl : public Sensor::Thermometer, public Sensor::Magnetometer, pub
                         m_RegOutY_L, m_RegOutY_H, m_RegOutZ_L, m_RegOutZ_H, m_RegOutT_L, m_RegOutT_H,
                         m_RegIntCfg, m_RegIntSrc, m_RegIntThs_L, m_RegIntThs_H;
 
-        Device::eReturnCode MultiRead(Device::RegPtr psReg, unsigned int BytesToRead, char * pcRxData);
-        Device::eReturnCode MultiWrite(Device::RegPtr psReg, unsigned int BytesToRead, char * pcTxData);
-        Device::eReturnCode Read(Device::RegPtr psReg, char & cValue);
-        Device::eReturnCode Write(Device::RegPtr psReg, char & cValue);
+        Device::eReturnCode MultiRead(Device::RegPtr psReg, Size BytesToRead, Word * pcRxData);
+        Device::eReturnCode MultiWrite(Device::RegPtr psReg, Size BytesToRead, Word * pcTxData);
+        Device::eReturnCode Read(Device::RegPtr psReg, Word & cValue);
+        Device::eReturnCode Write(Device::RegPtr psReg, Word & cValue);
 };
 
 }
