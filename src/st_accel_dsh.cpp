@@ -71,35 +71,6 @@ StAccel_dsh::~StAccel_dsh()
     }
 }
 
-void StAccel_dsh::_BufferSize(unsigned int unSize)
-{
-    m_unBuffSize = unSize;
-}
-unsigned int StAccel_dsh::_BufferSize()
-{
-    return m_unBuffSize;
-}
-void StAccel_dsh::_SetupBuffers(unsigned int BufLen)
-{
-    m_pcRxBuf = new char[BufLen];
-    m_pcTxBuf = new char[BufLen];
-    _BufferSize(BufLen);
-}
-void StAccel_dsh::_PopulateBuffer(char accessor)
-{
-    m_pcTxBuf[0] = accessor;
-}
-void StAccel_dsh::_CleanBuffers()
-{
-    _BufferSize(0);
-    delete[] m_pcRxBuf;
-    delete[] m_pcTxBuf;
-}
-bool StAccel_dsh::_BombsAway()
-{
-    return ((Communication::SpiBus*)m_clsBus)->Transact(m_pcRxBuf,m_pcTxBuf, m_unBuffSize);
-}
-
 GForce StAccel_dsh::_GetSIRange(StAccel_dsh::MeasureRange range)
 {
     switch (range) {
@@ -118,7 +89,7 @@ GForce StAccel_dsh::_GetSIRange(StAccel_dsh::MeasureRange range)
     }
 }
 
-Device::eReturnCode StAccel_dsh::MultiRead(Device::RegPtr psReg, unsigned int BytesToRead, char * pcRxData)
+Device::eReturnCode StAccel_dsh::MultiRead(Device::RegPtr psReg, Size BytesToRead, Word * pcRxData)
 {
     // Checks if the access incrementing flag is set
     if (!m_bReadInc)
@@ -131,7 +102,7 @@ Device::eReturnCode StAccel_dsh::MultiRead(Device::RegPtr psReg, unsigned int By
     _PopulateBuffer(ACC_SPI_MSG(psReg->cAddress,ACC_SPI_READ_FLAG));
 
     // Checks access rights
-    for (unsigned int i = 0; i < BytesToRead; ++i)
+    for (Size i = 0; i < BytesToRead; ++i)
         if (!CheckRegisterAccess(psReg++, READ_ACCESS))
             return Device::NoAccess;
 
@@ -139,7 +110,7 @@ Device::eReturnCode StAccel_dsh::MultiRead(Device::RegPtr psReg, unsigned int By
     bool rtrn = _BombsAway();
 
     // reads data from the buffer
-    for (unsigned int i = 0; i < BytesToRead; ++i)
+    for (Size i = 0; i < BytesToRead; ++i)
         pcRxData[i] = m_pcRxBuf[i+1];
 
     // Frees resouces
@@ -150,7 +121,7 @@ Device::eReturnCode StAccel_dsh::MultiRead(Device::RegPtr psReg, unsigned int By
     }else
         return Device::TerribleError;
 }
-Device::eReturnCode StAccel_dsh::MultiWrite(Device::RegPtr psReg, unsigned int BytesToRead, char * pcTxData)
+Device::eReturnCode StAccel_dsh::MultiWrite(Device::RegPtr psReg, Size BytesToRead, Word * pcTxData)
 {
     // Checks if the access incrementing flag is set
     if (!m_bReadInc)
@@ -162,12 +133,12 @@ Device::eReturnCode StAccel_dsh::MultiWrite(Device::RegPtr psReg, unsigned int B
     _SetupBuffers(BytesToRead + 1);
     _PopulateBuffer(ACC_SPI_MSG(psReg->cAddress,ACC_SPI_WRITE_FLAG));
 
-    for (unsigned int i = 0; i < BytesToRead; ++i) {
+    for (Size i = 0; i < BytesToRead; ++i) {
         m_pcTxBuf[i+1] = pcTxData[i];
     }
 
     // Checks access rights and if locked bits would get written on
-    for (unsigned int i = 0; i < BytesToRead; ++i){
+    for (Size i = 0; i < BytesToRead; ++i){
         if (!CheckRegisterAccess(psReg, READ_ACCESS))
             return Device::NoAccess;
         if (!CheckLockedBits(psReg, pcTxData[i]))
@@ -186,7 +157,7 @@ Device::eReturnCode StAccel_dsh::MultiWrite(Device::RegPtr psReg, unsigned int B
     }else
         return Device::TerribleError;
 }
-Device::eReturnCode StAccel_dsh::Read(Device::RegPtr psReg, char & cValue)
+Device::eReturnCode StAccel_dsh::Read(Device::RegPtr psReg, Word & cValue)
 {
     if (!CheckRegisterAccess(psReg, READ_ACCESS))
         return Device::NoAccess;
@@ -202,7 +173,7 @@ Device::eReturnCode StAccel_dsh::Read(Device::RegPtr psReg, char & cValue)
 
     _CleanBuffers();
 }
-Device::eReturnCode StAccel_dsh::Write(Device::RegPtr psReg, char & cValue)
+Device::eReturnCode StAccel_dsh::Write(Device::RegPtr psReg, Word & cValue)
 {
     if (!CheckRegisterAccess(psReg, WRITE_ACCESS))
         return Device::NoAccess;
@@ -224,7 +195,7 @@ Device::eReturnCode StAccel_dsh::Write(Device::RegPtr psReg, char & cValue)
 
 bool StAccel_dsh::SoftReset()
 {
-    char out;
+    Word out;
     Device::eReturnCode code = Read(m_RegCtrlReg3, out);
     if ( code != Device::OK)
         return false;
@@ -236,8 +207,8 @@ bool StAccel_dsh::SoftReset()
 }
 bool StAccel_dsh::Reboot()
 {
-    char out;
-    Device::eReturnCode code = Read(m_RegCtrlReg6,out);
+    Word out;
+    Device::eReturnCode code = Read(m_RegCtrlReg6, out);
     if ( code != Device::OK)
         return false;
 
@@ -247,10 +218,10 @@ bool StAccel_dsh::Reboot()
     return (code == Device::OK);
 }
 
-bool StAccel_dsh::ReadInfomation(unsigned short & unInfo)
+bool StAccel_dsh::ReadInfomation(DoubleWord & unInfo)
 {
-    char code = Device::OK;
-    char out[2]={0,0};
+    Word code = Device::OK;
+    Word out[2]={0,0};
 
     if(m_bReadInc){
         code = MultiRead(m_RegInfo1, 2, out);
@@ -259,12 +230,12 @@ bool StAccel_dsh::ReadInfomation(unsigned short & unInfo)
         code |= Read(m_RegInfo2, out[1]);
     }
 
-    unInfo =  *((short*)out);
+    unInfo =  *((DoubleWord*)out);
     return (code == Device::OK);
 }
-bool StAccel_dsh::WhoAmI(char & WhoAmI)
+bool StAccel_dsh::WhoAmI(Word & WhoAmI)
 {
-    char out;
+    Word out;
     Device::eReturnCode code = Read(m_RegWhoAmI, out);
 
     WhoAmI = out;
@@ -273,7 +244,7 @@ bool StAccel_dsh::WhoAmI(char & WhoAmI)
 
 bool StAccel_dsh::GetODR(StAccel_dsh::ODR & Value)
 {
-    char out;
+    Word out;
     Device::eReturnCode code = Read(m_RegCtrlReg4, out);
 
     Value = (ODR)((out & 0xF0) >> 4);
@@ -281,7 +252,7 @@ bool StAccel_dsh::GetODR(StAccel_dsh::ODR & Value)
 }
 bool StAccel_dsh::SetODR(StAccel_dsh::ODR Value)
 {
-    char out;
+    Word out;
     if(Value > ODR_SPEED_8)
         return false;
 
@@ -289,7 +260,7 @@ bool StAccel_dsh::SetODR(StAccel_dsh::ODR Value)
     if (code != Device::OK)
         return false;
 
-    out = ((out & 0x0F) | ((char)Value << 4));
+    out = ((out & 0x0F) | ((Word)Value << 4));
     code = Write(m_RegCtrlReg4, out);
 
     return (code == Device::OK);
@@ -297,7 +268,7 @@ bool StAccel_dsh::SetODR(StAccel_dsh::ODR Value)
 
 bool StAccel_dsh::GetRange(StAccel_dsh::MeasureRange & Value)
 {
-    char out;
+    Word out;
     Device::eReturnCode code = Read(m_RegCtrlReg5, out);
 
     Value = (MeasureRange)((out & 0x38) >> 3);
@@ -306,7 +277,7 @@ bool StAccel_dsh::GetRange(StAccel_dsh::MeasureRange & Value)
 }
 bool StAccel_dsh::SetRange(StAccel_dsh::MeasureRange Value)
 {
-    char out;
+    Word out;
     if(Value > RANGE_4)
         return false;
 
@@ -321,9 +292,18 @@ bool StAccel_dsh::SetRange(StAccel_dsh::MeasureRange Value)
     return (code == Device::OK);
 }
 
+bool StAccel_dsh::GetBootTimeout(MicroSeconds &Value)
+{
+
+}
+bool StAccel_dsh::SetBootTimeout(MicroSeconds Value)
+{
+
+}
+
 bool StAccel_dsh::IsFifoEnabled(bool & Value)
 {
-    char out;
+    Word out;
     Device::eReturnCode code = Read(m_RegCtrlReg6, out);
 
     if ( code != Device::OK)
@@ -334,7 +314,7 @@ bool StAccel_dsh::IsFifoEnabled(bool & Value)
 }
 bool StAccel_dsh::UseFifo(bool Value)
 {
-    char out;
+    Word out;
     Device::eReturnCode code = Read(m_RegCtrlReg6, out);
     if ( code != Device::OK)
         return false;
@@ -350,7 +330,7 @@ bool StAccel_dsh::UseFifo(bool Value)
 
 bool StAccel_dsh::IsFifoEmpty(bool & Value)
 {
-    char out;
+    Word out;
     Device::eReturnCode code = Read(m_RegFifoSrc, out);
 
     Value = ((out & 0x20) == 0x20);
@@ -358,7 +338,7 @@ bool StAccel_dsh::IsFifoEmpty(bool & Value)
 }
 bool StAccel_dsh::IsFifoOverrun(bool & Value)
 {
-    char out;
+    Word out;
     Device::eReturnCode code = Read(m_RegFifoSrc, out);
 
     Value = ((out & 0x40) == 0x40);
@@ -367,7 +347,7 @@ bool StAccel_dsh::IsFifoOverrun(bool & Value)
 
 bool StAccel_dsh::IsIntDrdy(bool & Value)
 {
-    char out;
+    Word out;
     Device::eReturnCode code = Read(m_RegCtrlReg3, out);
 
     Value = ((out & 0x80) == 0x80);
@@ -375,7 +355,7 @@ bool StAccel_dsh::IsIntDrdy(bool & Value)
 }
 bool StAccel_dsh::UseIntDrdy(bool Value)
 {
-    char out;
+    Word out;
     Device::eReturnCode code = Read(m_RegCtrlReg3,out);
     if ( code != Device::OK)
         return false;
@@ -391,7 +371,7 @@ bool StAccel_dsh::UseIntDrdy(bool Value)
 
 bool StAccel_dsh::GetIntPolarity(LogicState & Value)
 {
-    char out;
+    Word out;
     Device::eReturnCode code = Read(m_RegCtrlReg3, out);
 
     Value = (((out & 0x40) == 0x40) ? High : Low);
@@ -399,7 +379,7 @@ bool StAccel_dsh::GetIntPolarity(LogicState & Value)
 }
 bool StAccel_dsh::SetIntPolarity(LogicState Value)
 {
-    char out;    
+    Word out;
     Device::eReturnCode code = Read(m_RegCtrlReg3,out);
     if ( code != Device::OK)
         return false;
@@ -417,7 +397,7 @@ bool StAccel_dsh::SetIntPolarity(LogicState Value)
 
 bool StAccel_dsh::GetIntType(InterruptSignalType & Value)
 {
-    char out;
+    Word out;
     Device::eReturnCode code = Read(m_RegCtrlReg3, out);
 
     Value = (((out & 0x20) == 0x20) ? Pulsed : Latched);
@@ -425,7 +405,7 @@ bool StAccel_dsh::GetIntType(InterruptSignalType & Value)
 }
 bool StAccel_dsh::SetIntType(InterruptSignalType Value)
 {
-    char out;
+    Word out;
     Device::eReturnCode code = Read(m_RegCtrlReg3, out);
     if ( code != Device::OK)
         return false;
@@ -443,7 +423,7 @@ bool StAccel_dsh::SetIntType(InterruptSignalType Value)
 
 bool StAccel_dsh::IsInterrupt1(bool & Value)
 {
-    char out;
+    Word out;
     Device::eReturnCode code = Read(m_RegCtrlReg3, out);
 
     Value = ((out & 0x10) == 0x10);
@@ -451,7 +431,7 @@ bool StAccel_dsh::IsInterrupt1(bool & Value)
 }
 bool StAccel_dsh::UseInterrupt1(bool Value)
 {
-    char out;
+    Word out;
     Device::eReturnCode code = Read(m_RegCtrlReg3,out);
     if ( code != Device::OK)
         return false;
@@ -467,7 +447,7 @@ bool StAccel_dsh::UseInterrupt1(bool Value)
 
 bool StAccel_dsh::IsInterrupt2(bool & Value)
 {
-    char out;
+    Word out;
     Device::eReturnCode code = Read(m_RegCtrlReg3, out);
 
     Value = ((out & 0x08) == 0x08);
@@ -475,7 +455,7 @@ bool StAccel_dsh::IsInterrupt2(bool & Value)
 }
 bool StAccel_dsh::UseInterrupt2(bool Value)
 {
-    char out;
+    Word out;
     Device::eReturnCode code = Read(m_RegCtrlReg3,out);
     if ( code != Device::OK)
         return false;
@@ -491,7 +471,7 @@ bool StAccel_dsh::UseInterrupt2(bool Value)
 
 bool StAccel_dsh::IsIntBoot(bool & Value)
 {
-    char out;
+    Word out;
     Device::eReturnCode code = Read(m_RegCtrlReg6, out);
 
     Value = ((out & 0x01) == 0x01);
@@ -499,7 +479,7 @@ bool StAccel_dsh::IsIntBoot(bool & Value)
 }
 bool StAccel_dsh::UseIntBoot(bool Value)
 {
-    char out;
+    Word out;
     Device::eReturnCode code = Read(m_RegCtrlReg6,out);
     if ( code != Device::OK)
         return false;
@@ -514,7 +494,7 @@ bool StAccel_dsh::UseIntBoot(bool Value)
 }
 bool StAccel_dsh::IsIntFifoEmpty(bool & Value)
 {
-    char out;
+    Word out;
     Device::eReturnCode code = Read(m_RegCtrlReg6, out);
 
     Value = ((out & 0x08) == 0x08);
@@ -522,7 +502,7 @@ bool StAccel_dsh::IsIntFifoEmpty(bool & Value)
 }
 bool StAccel_dsh::UseIntFifoEmpty(bool Value)
 {
-    char out;
+    Word out;
     Device::eReturnCode code = Read(m_RegCtrlReg6,out);
     if ( code != Device::OK)
         return false;
@@ -537,7 +517,7 @@ bool StAccel_dsh::UseIntFifoEmpty(bool Value)
 }
 bool StAccel_dsh::IsIntFifoWtmrk(bool & Value)
 {
-    char out;
+    Word out;
     Device::eReturnCode code = Read(m_RegCtrlReg6, out);
 
     Value = ((out & 0x04) == 0x04);
@@ -545,7 +525,7 @@ bool StAccel_dsh::IsIntFifoWtmrk(bool & Value)
 }
 bool StAccel_dsh::UseIntFifoWtmrk(bool Value)
 {
-    char out;
+    Word out;
     Device::eReturnCode code = Read(m_RegCtrlReg6,out);
     if ( code != Device::OK)
         return false;
@@ -560,7 +540,7 @@ bool StAccel_dsh::UseIntFifoWtmrk(bool Value)
 }
 bool StAccel_dsh::IsIntFifoOverrun(bool & Value)
 {
-    char out;
+    Word out;
     Device::eReturnCode code = Read(m_RegCtrlReg6, out);
 
     Value = ((out & 0x02) == 0x02);
@@ -568,7 +548,7 @@ bool StAccel_dsh::IsIntFifoOverrun(bool & Value)
 }
 bool StAccel_dsh::UseIntFifoOverrun(bool Value)
 {
-    char out;
+    Word out;
     Device::eReturnCode code = Read(m_RegCtrlReg6,out);
     if ( code != Device::OK)
         return false;
@@ -584,8 +564,8 @@ bool StAccel_dsh::UseIntFifoOverrun(bool Value)
 
 bool StAccel_dsh::GetOffset(Sensor::RawAcceleromterData & Value)
 {
-    char code = Device::OK;
-    char out[3]={0,0,0};
+    Word code = Device::OK;
+    Word out[3]={0,0,0};
 
     if(m_bReadInc){
         code = MultiRead(m_RegOffX, 3, out);
@@ -602,11 +582,11 @@ bool StAccel_dsh::GetOffset(Sensor::RawAcceleromterData & Value)
 }
 bool StAccel_dsh::SetOffset(Sensor::RawAcceleromterData Value)
 {
-    char code = Device::OK;
-    char out[3] = {0,0,0};
-    out[0] = (char)Value.nX_Data;
-    out[1] = (char)Value.nY_Data;
-    out[2] = (char)Value.nZ_Data;
+    Word code = Device::OK;
+    Word out[3] = {0,0,0};
+    out[0] = (Word)Value.nX_Data;
+    out[1] = (Word)Value.nY_Data;
+    out[2] = (Word)Value.nZ_Data;
 
     if(m_bReadInc){
         code = MultiWrite(m_RegOffX, 3, out);
@@ -621,7 +601,7 @@ bool StAccel_dsh::SetOffset(Sensor::RawAcceleromterData Value)
 
 bool StAccel_dsh::GetFifoMode(FifoMode & Value)
 {
-    char out;
+    Word out;
     Device::eReturnCode code = Read(m_RegFifoCtrl, out);
 
     Value = (FifoMode)((out & 0xE0) >> 5);
@@ -629,7 +609,7 @@ bool StAccel_dsh::GetFifoMode(FifoMode & Value)
 }
 bool StAccel_dsh::SetFifoMode(FifoMode Value)
 {
-    char out;
+    Word out;
     if(Value > MODE_BYPASS_THEN_FIFO)
         return false;
 
@@ -637,14 +617,14 @@ bool StAccel_dsh::SetFifoMode(FifoMode Value)
     if ( code != Device::OK)
         return false;
 
-    out = (out & 0x1F) | (0xE0 & ((char)Value << 5));
+    out = (out & 0x1F) | (0xE0 & ((Word)Value << 5));
     code = Write(m_RegFifoCtrl, out);
     return (code == Device::OK);
 }
 
 bool StAccel_dsh::IsSPI3WireMode(bool & Value)
 {
-    char out;
+    Word out;
     Device::eReturnCode code = Read(m_RegCtrlReg5, out);
 
     Value = ((out & 0x01) == 0x01);
@@ -652,7 +632,7 @@ bool StAccel_dsh::IsSPI3WireMode(bool & Value)
 }
 bool StAccel_dsh::UseSPI3WireMode(bool Value)
 {
-    char out;
+    Word out;
     Device::eReturnCode code = Read(m_RegCtrlReg5,out);
     if ( code != Device::OK)
         return false;
@@ -668,7 +648,7 @@ bool StAccel_dsh::UseSPI3WireMode(bool Value)
 
 bool StAccel_dsh::GetAntiAliasFilterBandwidth(AntiAliasingBandwidth & Value)
 {
-    char out;
+    Word out;
     Device::eReturnCode code = Read(m_RegCtrlReg5, out);
 
     Value = (AntiAliasingBandwidth)((out & 0xC0) >> 6);
@@ -676,7 +656,7 @@ bool StAccel_dsh::GetAntiAliasFilterBandwidth(AntiAliasingBandwidth & Value)
 }
 bool StAccel_dsh::SetAntiAliasFilterBandwidth(AntiAliasingBandwidth Value)
 {
-    char out;
+    Word out;
     if(Value > BW_3)
         return false;
 
@@ -684,14 +664,14 @@ bool StAccel_dsh::SetAntiAliasFilterBandwidth(AntiAliasingBandwidth Value)
     if ( code != Device::OK)
         return false;
 
-    out = (out & 0x3F) | (0xC0 & ((char)Value << 6));
+    out = (out & 0x3F) | (0xC0 & ((Word)Value << 6));
     code = Write(m_RegCtrlReg5, out);
     return (code == Device::OK);
 }
 
 bool StAccel_dsh::IsFifoWatermark(bool & Value)
 {
-    char out;
+    Word out;
     Device::eReturnCode code = Read(m_RegCtrlReg6,out);
 
     Value = ((out & 0x20) == 0x20);
@@ -699,7 +679,7 @@ bool StAccel_dsh::IsFifoWatermark(bool & Value)
 }
 bool StAccel_dsh::UseFifoWatermark(bool Value)
 {
-    char out;
+    Word out;
     Device::eReturnCode code = Read(m_RegCtrlReg6,out);
     if ( code != Device::OK)
         return false;
@@ -712,9 +692,9 @@ bool StAccel_dsh::UseFifoWatermark(bool Value)
     code = Write(m_RegCtrlReg6, out);
     return (code == Device::OK);
 }
-bool StAccel_dsh::GetFifoFilledLength(char & Value)
+bool StAccel_dsh::GetFifoFilledLength(Word & Value)
 {
-    char out;
+    Word out;
     Device::eReturnCode code = Read(m_RegFifoSrc, out);
 
     Value = (out & 0x1F);
@@ -722,23 +702,23 @@ bool StAccel_dsh::GetFifoFilledLength(char & Value)
 }
 bool StAccel_dsh::GetFifoWatermarkStatus(bool & Value)
 {
-    char out;
+    Word out;
     Device::eReturnCode code = Read(m_RegFifoSrc, out);
 
     Value = ((out & 0x80) == 0x80);
     return (code == Device::OK);
 }
-bool StAccel_dsh::GetFifoWatermarkPointer(char & Value)
+bool StAccel_dsh::GetFifoWatermarkPointer(Word & Value)
 {
-    char out;
+    Word out;
     Device::eReturnCode code = Read(m_RegFifoCtrl, out);
 
     Value = (out & 0x1F);
     return (code == Device::OK);
 }
-bool StAccel_dsh::SetFifoWatermarkPointer(char Value)
+bool StAccel_dsh::SetFifoWatermarkPointer(Word Value)
 {
-    char out;
+    Word out;
     Device::eReturnCode code = Read(m_RegFifoCtrl,out);
     if ( code != Device::OK)
         return false;
@@ -750,7 +730,7 @@ bool StAccel_dsh::SetFifoWatermarkPointer(char Value)
 
 bool StAccel_dsh::GetSelfTestMode(SelfTestMode & Value)
 {
-    char out;
+    Word out;
     Device::eReturnCode code = Read(m_RegCtrlReg5, out);
 
     Value = (SelfTestMode)((out & 0x06) >> 1);
@@ -758,7 +738,7 @@ bool StAccel_dsh::GetSelfTestMode(SelfTestMode & Value)
 }
 bool StAccel_dsh::SetSelfTestMode(SelfTestMode Value)
 {
-    char out;
+    Word out;
     if(Value > TEST_NEGATIVE)
         return false;
 
@@ -766,14 +746,14 @@ bool StAccel_dsh::SetSelfTestMode(SelfTestMode Value)
     if ( code != Device::OK)
         return false;
 
-    out = (out & 0xF9) | (0x06 & ((char)Value << 1));
+    out = (out & 0xF9) | (0x06 & ((Word)Value << 1));
     code = Write(m_RegCtrlReg5, out);
     return (code == Device::OK);
 }
 
 bool StAccel_dsh::DataOverrunXYZ(bool & Value)
 {
-    char out;
+    Word out;
     Device::eReturnCode code = Read(m_RegStatus,out);
 
     Value = ((out & 0x80) == 0x80);
@@ -781,7 +761,7 @@ bool StAccel_dsh::DataOverrunXYZ(bool & Value)
 }
 bool StAccel_dsh::DataOverrunX(bool & Value)
 {
-    char out;
+    Word out;
     Device::eReturnCode code = Read(m_RegStatus,out);
 
     Value = ((out & 0x10) == 0x10);
@@ -789,7 +769,7 @@ bool StAccel_dsh::DataOverrunX(bool & Value)
 }
 bool StAccel_dsh::DataOverrunY(bool & Value)
 {
-    char out;
+    Word out;
     Device::eReturnCode code = Read(m_RegStatus,out);
 
     Value = ((out & 0x20) == 0x20);
@@ -797,7 +777,7 @@ bool StAccel_dsh::DataOverrunY(bool & Value)
 }
 bool StAccel_dsh::DataOverrunZ(bool & Value)
 {
-    char out;
+    Word out;
     Device::eReturnCode code = Read(m_RegStatus,out);
 
     Value = ((out & 0x40) == 0x40);
@@ -806,7 +786,7 @@ bool StAccel_dsh::DataOverrunZ(bool & Value)
 
 bool StAccel_dsh::DataAvailableXYZ(bool & Value)
 {
-    char out;
+    Word out;
     Device::eReturnCode code = Read(m_RegStatus,out);
 
     Value = ((out & 0x08) == 0x08);
@@ -814,7 +794,7 @@ bool StAccel_dsh::DataAvailableXYZ(bool & Value)
 }
 bool StAccel_dsh::DataAvailableX(bool & Value)
 {
-    char out;
+    Word out;
     Device::eReturnCode code = Read(m_RegStatus,out);
 
     Value = ((out & 0x01) == 0x01);
@@ -822,7 +802,7 @@ bool StAccel_dsh::DataAvailableX(bool & Value)
 }
 bool StAccel_dsh::DataAvailableY(bool & Value)
 {
-    char out;
+    Word out;
     Device::eReturnCode code = Read(m_RegStatus,out);
 
     Value = ((out & 0x02) == 0x02);
@@ -830,7 +810,7 @@ bool StAccel_dsh::DataAvailableY(bool & Value)
 }
 bool StAccel_dsh::DataAvailableZ(bool & Value)
 {
-    char out;
+    Word out;
     Device::eReturnCode code = Read(m_RegStatus,out);
 
     Value = ((out & 0x04) == 0x04);
@@ -839,7 +819,7 @@ bool StAccel_dsh::DataAvailableZ(bool & Value)
 
 bool StAccel_dsh::IsXAxisEnabled(bool & Value)
 {
-    char out;
+    Word out;
     Device::eReturnCode code = Read(m_RegCtrlReg4,out);
 
     Value = ((out & 0x04) == 0x04);
@@ -847,7 +827,7 @@ bool StAccel_dsh::IsXAxisEnabled(bool & Value)
 }
 bool StAccel_dsh::IsYAxisEnabled(bool & Value)
 {
-    char out;
+    Word out;
     Device::eReturnCode code = Read(m_RegCtrlReg4,out);
 
     Value = ((out & 0x02) == 0x02);
@@ -855,7 +835,7 @@ bool StAccel_dsh::IsYAxisEnabled(bool & Value)
 }
 bool StAccel_dsh::IsZAxisEnabled(bool & Value)
 {
-    char out;
+    Word out;
     Device::eReturnCode code = Read(m_RegCtrlReg4,out);
 
     Value = ((out & 0x01) == 0x01);
@@ -864,7 +844,7 @@ bool StAccel_dsh::IsZAxisEnabled(bool & Value)
 
 bool StAccel_dsh::UseAxisX(bool Value)
 {
-    char out;
+    Word out;
     Device::eReturnCode code = Read(m_RegCtrlReg4,out);
     if ( code != Device::OK)
         return false;
@@ -879,7 +859,7 @@ bool StAccel_dsh::UseAxisX(bool Value)
 }
 bool StAccel_dsh::UseAxisY(bool Value)
 {
-    char out;
+    Word out;
     Device::eReturnCode code = Read(m_RegCtrlReg4,out);
     if ( code != Device::OK)
         return false;
@@ -894,7 +874,7 @@ bool StAccel_dsh::UseAxisY(bool Value)
 }
 bool StAccel_dsh::UseAxisZ(bool Value)
 {
-    char out;
+    Word out;
     Device::eReturnCode code = Read(m_RegCtrlReg4,out);
     if ( code != Device::OK)
         return false;
@@ -910,7 +890,7 @@ bool StAccel_dsh::UseAxisZ(bool Value)
 
 bool StAccel_dsh::IsBDU(bool & Value)
 {
-    char out;
+    Word out;
     Device::eReturnCode code = Read(m_RegCtrlReg4,out);
 
     Value = ((out & 0x08) == 0x08);
@@ -918,7 +898,7 @@ bool StAccel_dsh::IsBDU(bool & Value)
 }
 bool StAccel_dsh::UseBDU(bool Value)
 {
-    char out;
+    Word out;
     Device::eReturnCode code = Read(m_RegCtrlReg4,out);
     if ( code != Device::OK)
         return false;
@@ -934,7 +914,7 @@ bool StAccel_dsh::UseBDU(bool Value)
 
 bool StAccel_dsh::IsReadInc(bool & Value)
 {
-    char out;
+    Word out;
     Device::eReturnCode code = Read(m_RegCtrlReg6,out);
 
     Value = ((out & 0x10) == 0x10);
@@ -943,7 +923,7 @@ bool StAccel_dsh::IsReadInc(bool & Value)
 }
 bool StAccel_dsh::UseReadInc(bool Value)
 {
-    char out;
+    Word out;
     Device::eReturnCode code = Read(m_RegCtrlReg6,out);
     if ( code != Device::OK)
         return false;
@@ -960,7 +940,7 @@ bool StAccel_dsh::UseReadInc(bool Value)
 
 bool StAccel_dsh::ReadSensorDataOnce(Sensor::RawThermometerData & OutData)
 {
-    char value;
+    Word value;
     Device::eReturnCode code = Read(m_RegOutT, value);
 
     OutData.nTemp = value;
@@ -968,8 +948,8 @@ bool StAccel_dsh::ReadSensorDataOnce(Sensor::RawThermometerData & OutData)
 }
 bool StAccel_dsh::ReadSensorDataOnce(Sensor::RawAcceleromterData & OutData)
 {
-    char out[6]= {0,0,0,0,0,0};
-    char code = Device::OK;
+    Word out[6]= {0,0,0,0,0,0};
+    Word code = Device::OK;
 
     if(m_bReadInc){
         code = MultiRead(m_RegOutX_L, 6, out);
@@ -982,16 +962,16 @@ bool StAccel_dsh::ReadSensorDataOnce(Sensor::RawAcceleromterData & OutData)
         code |= Read(m_RegOutZ_H, out[5]);
     }
 
-    OutData.nX_Data = *(short*)(out + 0) << 16;
-    OutData.nY_Data = *(short*)(out + 2) << 16;
-    OutData.nZ_Data = *(short*)(out + 4) << 16;
+    OutData.nX_Data = *(DoubleWord*)(out + 0) << 16;
+    OutData.nY_Data = *(DoubleWord*)(out + 2) << 16;
+    OutData.nZ_Data = *(DoubleWord*)(out + 4) << 16;
 
     return (code == Device::OK);
 }
 
 Celcius StAccel_dsh::ConvertToSIUnit(Sensor::RawThermometerData Data)
 {
-    signed char tmp = (signed char)Data.nTemp;
+    WordSigned tmp = (WordSigned)Data.nTemp;
     return (float)(25 + tmp);
 }
 GForce * StAccel_dsh::ConvertToSIUnit(Sensor::RawAcceleromterData Data)

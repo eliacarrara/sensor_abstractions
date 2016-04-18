@@ -1,9 +1,9 @@
 #ifndef ST_LIS3DSH_A_H
 #define ST_LIS3DSH_A_H
 
+#include <st_sensor.h>
 #include <accelerometer.h>
 #include <thermometer.h>
-#include <icdevice.h>
 
 #define MAG_NR_OF_REGISTERS 31
 #define ACC_SPI_DEV_FILE "/dev/spidev1.0"
@@ -16,7 +16,7 @@
 
 namespace Sensor{
 
-class StAccel_dsh : public Sensor::Thermometer, public Sensor::Accelerometer, public Device::ICDevice {
+class StAccel_dsh : public Thermometer, public Accelerometer, public StSensorConfig {
     public:
         StAccel_dsh();
         ~StAccel_dsh();
@@ -64,8 +64,8 @@ class StAccel_dsh : public Sensor::Thermometer, public Sensor::Accelerometer, pu
         bool Reboot();
 
         // IC Identification
-        bool ReadInfomation(unsigned short & unInfo);
-        bool WhoAmI(char & WhoAmI);
+        bool ReadInfomation(DoubleWord & unInfo);
+        bool WhoAmI(Word & WhoAmI);
 
         // Operation Configuration
         bool GetODR(ODR & Value);
@@ -73,6 +73,9 @@ class StAccel_dsh : public Sensor::Thermometer, public Sensor::Accelerometer, pu
 
         bool GetRange(MeasureRange & Value);
         bool SetRange(MeasureRange Value);
+
+        bool GetBootTimeout(MicroSeconds & Value);
+        bool SetBootTimeout(MicroSeconds Value);
 
         bool IsBDU(bool & Value);
         bool UseBDU(bool Value);
@@ -126,10 +129,10 @@ class StAccel_dsh : public Sensor::Thermometer, public Sensor::Accelerometer, pu
         bool UseFifoWatermark(bool Value);
 
         bool GetFifoWatermarkStatus(bool & Value);
-        bool GetFifoFilledLength(char & Value);
+        bool GetFifoFilledLength(Word & Value);
 
-        bool GetFifoWatermarkPointer(char & Value);
-        bool SetFifoWatermarkPointer(char Value);
+        bool GetFifoWatermarkPointer(Word & Value);
+        bool SetFifoWatermarkPointer(Word Value);
 
         //Interrupt stuff
         bool IsIntDrdy(bool & Value);
@@ -170,25 +173,13 @@ private:
         m_RegOutX_L, m_RegOutX_H, m_RegOutY_L, m_RegOutY_H, m_RegOutZ_L, m_RegOutZ_H, m_RegFifoCtrl,
         m_RegFifoSrc;
 
-        char * m_pcTxBuf = 0;
-        char * m_pcRxBuf = 0;
-        unsigned int m_unBuffSize;
-        bool m_bReadInc;
         MeasureRange m_eRange;
 
-        Device::eReturnCode MultiRead(Device::RegPtr psReg, unsigned int BytesToRead, char * pcRxData);
-        Device::eReturnCode MultiWrite(Device::RegPtr psReg, unsigned int BytesToRead, char * pcTxData);
-        Device::eReturnCode Read(Device::RegPtr psReg, char & cValue);
-        Device::eReturnCode Write(Device::RegPtr psReg, char & cValue);
+        Device::eReturnCode MultiRead(Device::RegPtr psReg, Size BytesToRead, Word * pcRxData);
+        Device::eReturnCode MultiWrite(Device::RegPtr psReg, Size BytesToRead, Word * pcTxData);
+        Device::eReturnCode Read(Device::RegPtr psReg, Word & cValue);
+        Device::eReturnCode Write(Device::RegPtr psReg, Word & cValue);
 
-        inline void _BufferSize(unsigned int unSize);
-        inline unsigned int _BufferSize();
-
-        inline void _SetupBuffers(unsigned int BufLen);
-        inline void _PopulateBuffer(char accessor);
-        inline void _PopulateBuffer(char accessor, char * param);
-        inline void _CleanBuffers();
-        inline bool _BombsAway();
         inline GForce _GetSIRange(MeasureRange range);
 };
 
