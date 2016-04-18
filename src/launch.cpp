@@ -227,7 +227,7 @@ int AccelerometerTest(){
             cout << (rtrn ? "o " : "x " );
         }
         else if(cmd.substr(0,6) == "WhoAmI" || cmd.substr(0,6) == "whoami"){
-            char val;
+            Word val;
             bool rtrn = accel->WhoAmI(val);
             cout << "\t" << (unsigned int)val << endl;
             cout << (rtrn ? "o " : "x " );
@@ -570,13 +570,13 @@ int AccelerometerTest(){
             cout << (rtrn ? "o " : "x " );
         }
         else if(cmd.substr(0,19) == "GetFifoFilledLength" || cmd.substr(0,19) == "getfifofilledlength"){
-            char val;
+            Word val;
             bool rtrn = accel->GetFifoFilledLength(val);
             cout << "\t" << (unsigned int)val << endl;
             cout << (rtrn ? "o " : "x " );
         }
         else if(cmd.substr(0,19) == "GetWatermarkPointer" || cmd.substr(0,19) == "getwatermarkpointer"){
-            char val;
+            Word val;
             bool rtrn = accel->GetFifoWatermarkPointer(val);
             cout << "\t" << (unsigned int)val << endl;
             cout << (rtrn ? "o " : "x " );
