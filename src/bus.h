@@ -7,6 +7,8 @@
 #ifndef BUS_H
 #define BUS_H
 
+#include <types.h>
+
 /// Includes all communication related items
 namespace Communication {
 
@@ -33,7 +35,7 @@ public:
     /// data to write.
     /// \param unLength The number of bytes of data to transfer.
     /// \return Returns true upon success.
-    virtual bool Transact(const char * pcReadBuffer, const char * pcWriteBuffer, unsigned int unLength)=0;
+    virtual bool Transact(Word * pcReadBuffer, const Word * pcWriteBuffer, Size unLength)=0;
 };
 
 }
